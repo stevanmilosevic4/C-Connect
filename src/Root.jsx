@@ -27,7 +27,7 @@ export default function Root() {
         <div>
           <div className="brand">C<i>›</i>Connect</div>
           <h1 style={{ marginTop: 14 }}>Constructor University ambassador platform</h1>
-          <p style={{ marginTop: 8 }}>A mobile, map-led app that turns students, alumni and parents into recruiters — and gives the recruitment team one place to approve and manage it all.</p>
+          <p style={{ marginTop: 8 }}>A place to connect — where students, alumni and parents open doors for the next generation, and carry the spirit of Constructor out into the world.</p>
         </div>
         <div>
           <div className="group-label">Switch experience</div>

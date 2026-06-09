@@ -1,8 +1,8 @@
 # C&gt;Connect
 
-The **Constructor University Bremen** ambassador platform — a mobile, map-led app
-that turns students, alumni and parents into recruiters, and gives the recruitment
-team one place to approve and manage it all.
+The **Constructor University Bremen** ambassador platform — a place to connect,
+where students, alumni and parents open doors for the next generation and carry
+the spirit of Constructor out into the world.
 
 Built from the *Constructor University Design System* handoff (Claude Design),
 recreated as a real React + Vite app. The design medium was an HTML/CSS/JS
