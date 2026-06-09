@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from './ds/index.jsx';
 import { Icon } from './icons.jsx';
 import { TabBar, CMark } from './shell.jsx';
-import { me as ME } from './data.js';
+import { me as ME, allCountries } from './data.js';
 import * as ST from './screens/student.jsx';
 import * as PA from './screens/other.jsx';
 import * as CO from './screens/common.jsx';
@@ -49,7 +49,7 @@ function useNav(role) {
   return { tab, stack, nav };
 }
 
-function renderScreen(role, tab, view, params, nav, me, onSignOut) {
+function renderScreen(role, tab, view, params, nav, me, onSignOut, countries) {
   // sub-views (pushed)
   if (view) {
     const v = {
@@ -62,6 +62,8 @@ function renderScreen(role, tab, view, params, nav, me, onSignOut) {
       'req-sent': () => <ST.ReqSent nav={nav} params={params} />,
       'log-visit': () => <ST.LogVisit nav={nav} params={params} role={role} />,
       'refer-student': () => <ST.ReferStudent nav={nav} />,
+      'batch-request': () => <ST.BatchRequest nav={nav} params={params} />,
+      'request-access': () => <ST.RequestAccess nav={nav} params={params} />,
       'make-video': () => <RES.MakeVideo nav={nav} role={role} />,
       'brochures': () => <RES.Brochures nav={nav} role={role} />,
       'signup-sheet': () => <RES.SignUpSheet nav={nav} />,
@@ -80,7 +82,7 @@ function renderScreen(role, tab, view, params, nav, me, onSignOut) {
   if (role === 'parent') {
     return {
       home: () => <PA.ParentDashboard me={me} nav={nav} />,
-      map: () => <ST.MapScreen nav={nav} />,
+      map: () => <ST.MapScreen nav={nav} role={role} countries={countries} />,
       contacts: () => <PA.ParentContacts nav={nav} />,
       profile: () => <PA.ParentProfile me={me} nav={nav} onSignOut={onSignOut} />,
     }[tab]();
@@ -88,7 +90,7 @@ function renderScreen(role, tab, view, params, nav, me, onSignOut) {
   if (role === 'rm') {
     return {
       inbox: () => <RM.RMInbox me={me} nav={nav} />,
-      map: () => <ST.MapScreen nav={nav} />,
+      map: () => <ST.MapScreen nav={nav} role={role} countries={countries} />,
       fairs: () => <RM.RMFairs />,
       schools: () => <RM.RMSchools nav={nav} />,
       people: () => <RM.RMPeople />,
@@ -97,7 +99,7 @@ function renderScreen(role, tab, view, params, nav, me, onSignOut) {
   // student / alumni
   return {
     home: () => <ST.Dashboard me={me} nav={nav} />,
-    map: () => <ST.MapScreen nav={nav} />,
+    map: () => <ST.MapScreen nav={nav} role={role} countries={countries} />,
     fairs: () => <ST.Fairs role={role} />,
     status: () => <ST.Status me={me} />,
     profile: () => <ST.Profile me={me} nav={nav} onSignOut={onSignOut} />,
@@ -167,15 +169,59 @@ export function Login({ onLogin }) {
   );
 }
 
+// ---- Country selection (onboarding step for ambassadors) --
+export function CountrySelect({ onDone }) {
+  const max = 3;
+  const [picked, setPicked] = React.useState([]);
+  const toggle = (c) => setPicked((p) => (p.includes(c) ? p.filter((x) => x !== c) : (p.length < max ? [...p, c] : p)));
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', background: 'var(--surface-subtle)', padding: '64px 22px 30px',
+      display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div>
+        <CMark size={26} />
+        <div style={{ fontWeight: 900, fontSize: 24, color: 'var(--cu-navy)', marginTop: 18, letterSpacing: '-0.02em' }}>Where will you represent us?</div>
+        <div style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 4 }}>
+          Choose up to {max} countries whose schools you can work with. You can request more from your Regional Manager later.
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+        {allCountries.map((c) => {
+          const on = picked.includes(c);
+          const disabled = !on && picked.length >= max;
+          return (
+            <button key={c} onClick={() => toggle(c)} disabled={disabled} style={{
+              display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', cursor: disabled ? 'not-allowed' : 'pointer',
+              background: '#fff', border: on ? '2px solid var(--cu-mobility-blue)' : '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-lg)', padding: '14px', boxShadow: 'var(--shadow-sm)', opacity: disabled ? 0.5 : 1 }}>
+              <span style={{ width: 40, height: 40, borderRadius: 11, flex: 'none', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', background: on ? 'var(--cu-mobility-blue)' : 'var(--cu-navy)' }}>
+                <Icon name="map" size={20} color="#fff" /></span>
+              <span style={{ flex: 1, fontWeight: 700, fontSize: 15.5, color: 'var(--cu-navy)' }}>{c}</span>
+              {on && <Icon name="checkCircle" size={20} color="var(--cu-mobility-blue)" />}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ flex: 1, minHeight: 8 }} />
+      <Button variant="primary" size="lg" block disabled={!picked.length} onClick={() => onDone(picked)}>
+        Continue{picked.length ? ` · ${picked.length} selected` : ''}
+      </Button>
+    </div>
+  );
+}
+
 // ---- App (self-contained: login → role → app) ------------
-export function AppInner({ role, onSignOut }) {
+export function AppInner({ role, onSignOut, initialCountries }) {
   const me = ME[role === 'alumni' ? 'alumni' : role];
+  const [countries] = React.useState(
+    initialCountries && initialCountries.length ? initialCountries : (me.countries || []),
+  );
   const { tab, stack, nav } = useNav(role);
   const top = stack[stack.length - 1];
   const hideTabBar = top && ['req-sent'].includes(top.view);
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-      {renderScreen(role, tab, top?.view, top?.params || {}, nav, me, onSignOut)}
+      {renderScreen(role, tab, top?.view, top?.params || {}, nav, me, onSignOut, countries)}
       {!hideTabBar && <TabBar tabs={TABS[role]} active={tab} onChange={nav.setTab} />}
     </div>
   );

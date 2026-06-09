@@ -4,7 +4,7 @@
 // naturally like a real mobile app, with a small floating demo role switcher.
 import React from 'react';
 import { IOSDevice } from './ios-frame.jsx';
-import { AppInner, Login, RoleSelect } from './app.jsx';
+import { AppInner, Login, RoleSelect, CountrySelect } from './app.jsx';
 import { Icon } from './icons.jsx';
 
 const ROLE_META = [
@@ -30,7 +30,7 @@ function useCompact() {
 }
 
 // Floating demo control (phones only) — switch experience / see onboarding.
-function CompactRoleSwitcher({ stage, role, setRole, setStage }) {
+function CompactRoleSwitcher({ stage, role, onPick, onLogin }) {
   const [open, setOpen] = React.useState(false);
   return (
     <>
@@ -59,7 +59,7 @@ function CompactRoleSwitcher({ stage, role, setRole, setStage }) {
             {ROLE_META.map((r) => {
               const on = stage === 'app' && role === r.key;
               return (
-                <button key={r.key} onClick={() => { setRole(r.key); setStage('app'); setOpen(false); }}
+                <button key={r.key} onClick={() => { onPick(r.key); setOpen(false); }}
                   style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 11,
                     padding: '12px 10px', border: 'none', borderRadius: 10, cursor: 'pointer',
                     background: on ? 'var(--status-info-bg)' : 'transparent' }}>
@@ -71,7 +71,7 @@ function CompactRoleSwitcher({ stage, role, setRole, setStage }) {
                 </button>
               );
             })}
-            <button onClick={() => { setStage('login'); setOpen(false); }}
+            <button onClick={() => { onLogin(); setOpen(false); }}
               style={{ width: '100%', textAlign: 'left', padding: '12px 10px', marginTop: 2, border: 'none',
                 borderTop: '1px solid var(--border-subtle)', background: 'transparent', borderRadius: 0,
                 fontSize: 14, color: 'var(--cu-mobility-blue)', fontWeight: 600, cursor: 'pointer' }}>
@@ -88,11 +88,20 @@ export default function Root() {
   const compact = useCompact();
   const [stage, setStage] = React.useState('app'); // start in-app for review
   const [role, setRole] = React.useState('student');
+  const [signupCountries, setSignupCountries] = React.useState(null);
+
+  // Direct (demo) role pick — skips onboarding, uses the role's default countries.
+  const pickRole = (r) => { setRole(r); setSignupCountries(null); setStage('app'); };
 
   let content;
   if (stage === 'login') content = <Login onLogin={() => setStage('role')} />;
-  else if (stage === 'role') content = <RoleSelect onPick={(r) => { setRole(r); setStage('app'); }} />;
-  else content = <AppInner key={role} role={role} onSignOut={() => setStage('login')} />;
+  else if (stage === 'role') content = (
+    <RoleSelect onPick={(r) => { setRole(r); setStage(r === 'rm' ? 'app' : 'countries'); }} />
+  );
+  else if (stage === 'countries') content = (
+    <CountrySelect onDone={(cs) => { setSignupCountries(cs); setStage('app'); }} />
+  );
+  else content = <AppInner key={role} role={role} initialCountries={signupCountries} onSignOut={() => setStage('login')} />;
 
   // Phones: full-screen app + floating demo switcher.
   if (compact) {
@@ -100,7 +109,7 @@ export default function Root() {
       <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column',
         background: '#fff', overflow: 'hidden' }}>
         {content}
-        <CompactRoleSwitcher stage={stage} role={role} setRole={setRole} setStage={setStage} />
+        <CompactRoleSwitcher stage={stage} role={role} onPick={pickRole} onLogin={() => setStage('login')} />
       </div>
     );
   }
@@ -119,7 +128,7 @@ export default function Root() {
           <div className="roles">
             {ROLE_META.map((r) => (
               <button key={r.key} className={'role-btn' + (stage === 'app' && role === r.key ? ' on' : '')}
-                onClick={() => { setRole(r.key); setStage('app'); }}>
+                onClick={() => pickRole(r.key)}>
                 <span className="ic"><Icon name={r.icon} size={20} color="#fff" /></span>
                 <span className="tx"><b>{r.label}</b></span>
               </button>

@@ -137,17 +137,19 @@ export function Notifications({ role, nav }) {
                 <span style={{ fontSize: 11.5, color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>{n.when}</span>
               </div>
               <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 2 }}>{n.sub}</div>
-              {n.kind === 'approval' && (
+              {(n.kind === 'approval' || n.kind === 'access') && (
                 handled[n.id] ? (
                   <div style={{ marginTop: 8, fontSize: 12.5, fontWeight: 700,
                     color: handled[n.id] === 'approved' ? 'var(--cu-healthy-green)' : 'var(--cu-diversity-red)' }}>
-                    {handled[n.id] === 'approved' ? `Approved · €${n.amount} released` : 'Declined'}
+                    {handled[n.id] === 'approved'
+                      ? (n.kind === 'access' ? 'Access granted' : `Approved · €${n.amount} released`)
+                      : 'Declined'}
                   </div>
                 ) : (
                   <div style={{ display: 'flex', gap: 8, marginTop: 9 }}>
                     <Button variant="danger-outline" size="sm" onClick={() => review(n, 'declined')}>Decline</Button>
                     <Button variant="primary" size="sm" iconRight={<Icon name="check" size={15} />}
-                      onClick={() => review(n, 'approved')}>Approve €{n.amount}</Button>
+                      onClick={() => review(n, 'approved')}>{n.kind === 'access' ? 'Grant access' : `Approve €${n.amount}`}</Button>
                   </div>
                 )
               )}

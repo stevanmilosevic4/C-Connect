@@ -49,6 +49,21 @@ const bullet = (text) => (
   </div>
 );
 
+// A video is a once-a-year reward: locked while pending, and for a year after the
+// Regional Manager verifies it.
+function videoLock(vid) {
+  if (!vid) return null;
+  if (vid.status === 'pending') return { state: 'pending' };
+  if (vid.status === 'verified' && vid.verifiedOn) {
+    const next = new Date(vid.verifiedOn);
+    next.setFullYear(next.getFullYear() + 1);
+    if (new Date() < next) {
+      return { state: 'verified', availableOn: next.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) };
+    }
+  }
+  return null;
+}
+
 // ============ MAKE A VIDEO — "Day in the life" ============
 export function MakeVideo({ nav, role }) {
   const [file, setFile] = React.useState(null);
@@ -56,6 +71,7 @@ export function MakeVideo({ nav, role }) {
   const [err, setErr] = React.useState(null);
   const [sent, setSent] = React.useState(false);
   const amount = rewardFor('video', role);
+  const lock = videoLock(ME[role]?.video);
 
   async function submit() {
     setBusy(true); setErr(null);
@@ -71,6 +87,35 @@ export function MakeVideo({ nav, role }) {
     <Sent nav={nav} title="Video submitted"
       body={`Your “Day in the life” video has been sent to your Regional Manager for review. Once approved, your €${amount} gift card is released.`} />
   );
+
+  if (lock) {
+    const verified = lock.state === 'verified';
+    return (
+      <>
+        <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Day in the life" />
+        <Screen bg="var(--surface-subtle)">
+          <Card variant={verified ? 'success' : ''} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ width: 46, height: 46, borderRadius: '50%', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: verified ? 'var(--cu-healthy-green)' : 'var(--cu-shiny-yellow)' }}>
+              <Icon name={verified ? 'checkCircle' : 'clock'} size={24} color="#fff" /></span>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 16, color: verified ? '#066b54' : 'var(--cu-navy)' }}>
+                {verified ? 'Completed for this year' : 'Submitted — in review'}</div>
+              <div style={{ fontSize: 12.5, color: verified ? '#066b54' : 'var(--text-muted)' }}>
+                {verified ? `€${amount} reward earned` : 'Awaiting your Regional Manager'}</div>
+            </div>
+          </Card>
+          <div style={{ fontSize: 13.5, color: 'var(--text-body)', lineHeight: 1.55 }}>
+            {verified
+              ? <>The “Day in the life” video is a <strong style={{ fontWeight: 700 }}>once-a-year</strong> reward. Your Regional Manager verified your video, so you’re all set until next year. You can make another from <strong style={{ fontWeight: 700 }}>{lock.availableOn}</strong>.</>
+              : <>You’ve already submitted a video. Once your Regional Manager verifies it, your €{amount} reward is released — and the next video unlocks a year later.</>}
+          </div>
+          <div style={{ flex: 1, minHeight: 4 }} />
+          <Button variant="secondary" size="lg" block onClick={() => nav.back()}>Back</Button>
+        </Screen>
+      </>
+    );
+  }
   return (
     <>
       <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Day in the life" />

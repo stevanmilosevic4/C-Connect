@@ -3,10 +3,11 @@ import React from 'react';
 import { Button, Card, Avatar, Chip, StatusPill } from '../ds/index.jsx';
 import { Icon } from '../icons.jsx';
 import {
-  AppBar, RoundBtn, Screen, SectionLabel, StatTile, ListRow, statusPill,
-  MapView, TierLadder, TerminalProgress, HistoryLog,
+  AppBar, RoundBtn, Screen, SectionLabel, StatTile, ListRow, statusPill, pinColor,
+  TierLadder, TerminalProgress, HistoryLog,
 } from '../shell.jsx';
-import { tiers, requests, fairs, giftHistory, schools, school, rewardFor } from '../data.js';
+import { tiers, requests, fairs, giftHistory, schools, school, rewardFor, allCountries, citiesIn, schoolsIn } from '../data.js';
+import { SchoolsMap } from '../components/SchoolsMap.jsx';
 
 const tierName = (k) => tiers.find((t) => t.key === k)?.name || k;
 
@@ -153,38 +154,250 @@ export function RequestStatus({ nav, params }) {
   );
 }
 
-// ============ MAP ============
-export function MapScreen({ nav }) {
-  const [filter, setFilter] = React.useState('all');
-  const [sel, setSel] = React.useState(null);
-  const selSchool = sel && school(sel);
+// ============ SCHOOLS MAP ============
+function InstrRow({ icon, color, label, need, sub, onClick }) {
+  return (
+    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'none',
+      border: 'none', textAlign: 'left', cursor: onClick ? 'pointer' : 'default', padding: 0, width: '100%' }}>
+      <span style={{ width: 36, height: 36, borderRadius: 9, flex: 'none', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', background: color, color: '#fff' }}><Icon name={icon} size={18} /></span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontWeight: 700, fontSize: 14, color: 'var(--text-strong)' }}>
+          {label} <span style={{ fontSize: 11, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>· {need}</span>
+        </span>
+        <span style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)' }}>{sub}</span>
+      </span>
+      {onClick && <Icon name="chevronRight" size={17} color="var(--neutral-400)" />}
+    </button>
+  );
+}
+
+export function MapScreen({ nav, role = 'student', countries }) {
+  const isAdmin = role === 'rm';
+  const myCountries = isAdmin ? allCountries : (countries && countries.length ? countries : ['Germany']);
+  const lockedCountries = allCountries.filter((c) => !myCountries.includes(c));
+
+  const [country, setCountry] = React.useState('all');
+  const [city, setCity] = React.useState('all');
+  const [query, setQuery] = React.useState('');
+  const [selected, setSelected] = React.useState([]);
+  React.useEffect(() => { setCity('all'); }, [country]);
+
+  const q = query.trim().toLowerCase();
+  const visible = schoolsIn(myCountries).filter((s) =>
+    (country === 'all' || s.country === country) &&
+    (city === 'all' || s.city === city) &&
+    (!q || s.name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q)));
+  const cityOptions = country === 'all' ? [] : citiesIn(country);
+  const toggle = (id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+
   return (
     <>
-      <AppBar title="Schools" subtitle="Tap a pin to view details"
-        right={<RoundBtn name="search" />} />
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <MapView schools={schools} filter={filter} selected={sel} onPick={setSel} />
-        <div style={{ position: 'absolute', top: 12, left: 12, right: 12, display: 'flex', gap: 8, overflowX: 'auto' }}>
-          {[['all', 'All'], ['contacted', 'Contacted'], ['visited', 'Visited'], ['new', 'No contact']].map(([k, l]) => (
-            <Chip key={k} active={filter === k} onClick={() => { setFilter(k); }}>{l}</Chip>
-          ))}
+      <AppBar title="Schools map" subtitle={isAdmin ? 'All countries' : myCountries.join(' · ')}
+        right={<RoundBtn name="bell" badge onClick={() => nav.go('notifications')} />} />
+      <Screen bg="var(--surface-subtle)">
+        <input className="cu-input" placeholder="Search school or city…" value={query}
+          onChange={(e) => setQuery(e.target.value)} />
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+          <Chip active={country === 'all'} onClick={() => setCountry('all')}>All countries</Chip>
+          {myCountries.map((c) => <Chip key={c} active={country === c} onClick={() => setCountry(c)}>{c}</Chip>)}
         </div>
-        {selSchool && (
-          <div style={{ position: 'absolute', left: 12, right: 12, bottom: 14 }}>
-            <Card elevation="float" style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                <div>
-                  <div style={{ fontWeight: 900, fontSize: 16, color: 'var(--cu-navy)' }}>{selSchool.name}</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>{selSchool.city} · {selSchool.dist}</div>
-                </div>
-                {statusPill(selSchool.status)}
-              </div>
-              <Button variant="primary" block iconRight={<Icon name="arrowRight" size={18} />}
-                onClick={() => nav.go('school', { id: selSchool.id })}>View school</Button>
-            </Card>
+        {country !== 'all' && cityOptions.length > 1 && (
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+            <Chip active={city === 'all'} onClick={() => setCity('all')}>All cities</Chip>
+            {cityOptions.map((c) => <Chip key={c} active={city === c} onClick={() => setCity(c)}>{c}</Chip>)}
           </div>
         )}
-      </div>
+
+        <SchoolsMap schools={visible} selected={selected} onToggle={toggle} height={230} />
+
+        {!isAdmin && (
+          selected.length > 0 ? (
+            <Card elevation="raised" style={{ display: 'flex', alignItems: 'center', gap: 10, border: '2px solid var(--cu-mobility-blue)' }}>
+              <div style={{ flex: 1, fontSize: 13.5, fontWeight: 700, color: 'var(--cu-navy)' }}>{selected.length} selected</div>
+              <button onClick={() => setSelected([])} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Clear</button>
+              <Button variant="primary" size="sm" iconRight={<Icon name="arrowRight" size={15} />}
+                onClick={() => nav.go('batch-request', { ids: selected })}>Request visits</Button>
+            </Card>
+          ) : (
+            <div style={{ fontSize: 12, color: 'var(--text-subtle)', textAlign: 'center' }}>
+              Tap pins to select one or more schools, then request visits to all at once.
+            </div>
+          )
+        )}
+
+        {!isAdmin && (
+          <>
+            <SectionLabel>Before you go</SectionLabel>
+            <Card style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <InstrRow icon="camera" color="var(--cu-diversity-red)" label="Photos" need="Required"
+                sub="Take photos at the visit to complete the quest." />
+              <InstrRow icon="edit" color="var(--cu-mobility-blue)" label="Sign-up sheet" need="Bring"
+                sub="Collect interested students’ details." onClick={() => nav.go('signup-sheet')} />
+              <InstrRow icon="mail" color="var(--cu-navy)" label="Brochures" need="Advised"
+                sub="Print and hand out at the school." onClick={() => nav.go('brochures')} />
+            </Card>
+          </>
+        )}
+
+        <SectionLabel>All schools</SectionLabel>
+        {myCountries.filter((c) => country === 'all' || c === country).map((c) => {
+          const list = visible.filter((s) => s.country === c);
+          if (!list.length) return null;
+          return (
+            <div key={c} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', margin: '4px 2px 0' }}>{c}</div>
+              {list.map((s) => (
+                <ListRow key={s.id} icon="school" iconColor={pinColor(s.status)} title={s.name}
+                  sub={`${s.city} · ${s.dist}`} right={statusPill(s.status)}
+                  onClick={() => nav.go('school', { id: s.id })} />
+              ))}
+            </div>
+          );
+        })}
+
+        {!isAdmin && lockedCountries.length > 0 && (
+          <>
+            <SectionLabel>Other countries — access needed</SectionLabel>
+            {lockedCountries.map((c) => (
+              <Card key={c} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                <span style={{ width: 38, height: 38, borderRadius: 10, flex: 'none', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', background: 'var(--neutral-100)', color: 'var(--neutral-500)' }}>
+                  <Icon name="map" size={19} /></span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-strong)' }}>{c}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{schoolsIn([c]).length} schools · locked</div>
+                </div>
+                <Button variant="secondary" size="sm" onClick={() => nav.go('request-access', { country: c })}>Request access</Button>
+              </Card>
+            ))}
+          </>
+        )}
+      </Screen>
+    </>
+  );
+}
+
+// ============ BATCH VISIT REQUEST ============
+export function BatchRequest({ nav, params }) {
+  const list = (params.ids || []).map((id) => school(id)).filter(Boolean);
+  const [picked, setPicked] = React.useState([12, 18]);
+  const [sent, setSent] = React.useState(false);
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const toggle = (d) => setPicked((p) => (p.includes(d) ? p.filter((x) => x !== d) : [...p, d]));
+
+  if (sent) {
+    return (
+      <Screen bg="var(--cu-navy)">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16, padding: '0 22px' }}>
+          <span style={{ width: 82, height: 82, borderRadius: '50%', background: 'rgba(0,169,135,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ width: 58, height: 58, borderRadius: '50%', background: 'var(--cu-healthy-green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="check" size={32} color="#fff" stroke={3} /></span>
+          </span>
+          <div style={{ fontWeight: 900, fontSize: 23, color: '#fff' }}>{list.length} request{list.length > 1 ? 's' : ''} sent</div>
+          <div style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 300 }}>
+            Each school receives its own personalised email automatically once your Regional Manager approves. You’ll be CC’d on every one.
+          </div>
+          <Button variant="accent" size="lg" block style={{ maxWidth: 280 }} onClick={() => nav.reset('map')}>Back to schools map</Button>
+        </div>
+      </Screen>
+    );
+  }
+  return (
+    <>
+      <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Request visits" subtitle={`${list.length} school${list.length > 1 ? 's' : ''}`} />
+      <Screen bg="var(--surface-subtle)">
+        <Card style={{ padding: 0, overflow: 'hidden' }}>
+          {list.map((s, i) => (
+            <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 13px', borderTop: i ? '1px solid var(--border-subtle)' : 'none' }}>
+              <span style={{ width: 30, height: 30, borderRadius: 8, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', background: pinColor(s.status) + '22', color: pinColor(s.status) }}>
+                <Icon name="school" size={16} /></span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-strong)' }}>{s.name}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{s.city}, {s.country}</div>
+              </div>
+            </div>
+          ))}
+        </Card>
+        <div style={{ fontWeight: 900, fontSize: 16, color: 'var(--cu-navy)' }}>Propose visit date(s)</div>
+        <Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <Icon name="chevronLeft" size={18} color="var(--neutral-400)" />
+            <span style={{ fontWeight: 700, fontSize: 14 }}>March 2025</span>
+            <Icon name="chevronRight" size={18} color="var(--neutral-400)" />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 5 }}>
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+              <div key={i} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'var(--text-subtle)', paddingBottom: 2 }}>{d}</div>
+            ))}
+            {days.map((d) => {
+              const on = picked.includes(d);
+              return (
+                <button key={d} onClick={() => toggle(d)} style={{ aspectRatio: '1', borderRadius: 9, border: 'none', cursor: 'pointer',
+                  fontSize: 13, fontWeight: on ? 700 : 500, background: on ? 'var(--cu-mobility-blue)' : 'transparent', color: on ? '#fff' : 'var(--text-body)' }}>{d}</button>
+              );
+            })}
+          </div>
+        </Card>
+        <div>
+          <label style={lbl}>Note to schools (optional)</label>
+          <textarea className="cu-input" rows={2} placeholder="A short, friendly introduction…" style={{ marginTop: 6 }} />
+        </div>
+        <div style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>
+          A separate, personalised email is sent to each school — none of them sees the others.
+        </div>
+        <div style={{ flex: 1 }} />
+        <Button variant="primary" size="lg" block disabled={!list.length || !picked.length}
+          iconRight={<Icon name="send" size={18} />} onClick={() => setSent(true)}>
+          Send {list.length} request{list.length > 1 ? 's' : ''} for approval
+        </Button>
+      </Screen>
+    </>
+  );
+}
+
+// ============ REQUEST COUNTRY ACCESS ============
+export function RequestAccess({ nav, params }) {
+  const country = params.country || 'another country';
+  const [sent, setSent] = React.useState(false);
+  if (sent) {
+    return (
+      <Screen bg="var(--cu-navy)">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16, padding: '0 22px' }}>
+          <span style={{ width: 76, height: 76, borderRadius: '50%', background: 'rgba(0,140,227,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="send" size={30} color="#fff" /></span>
+          <div style={{ fontWeight: 900, fontSize: 22, color: '#fff' }}>Request sent</div>
+          <div style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 300 }}>
+            Your Regional Manager will review your request to work with schools in <strong style={{ fontWeight: 700, color: '#fff' }}>{country}</strong>. You’ll be notified once it’s approved.
+          </div>
+          <Button variant="accent" size="lg" block style={{ maxWidth: 280 }} onClick={() => nav.back()}>Back to map</Button>
+        </div>
+      </Screen>
+    );
+  }
+  return (
+    <>
+      <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Request access" />
+      <Screen bg="var(--surface-subtle)">
+        <Card style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ width: 44, height: 44, borderRadius: 11, flex: 'none', background: 'var(--cu-navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="map" size={22} color="#fff" /></span>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: 17, color: 'var(--cu-navy)' }}>Schools in {country}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>Outside your registered countries</div>
+          </div>
+        </Card>
+        <div style={{ fontSize: 13.5, color: 'var(--text-body)', lineHeight: 1.55 }}>
+          You registered to work with schools in a set number of countries. To visit schools in <strong style={{ fontWeight: 700 }}>{country}</strong>, ask your Regional Manager to grant you access.
+        </div>
+        <div>
+          <label style={lbl}>Why do you need access? (optional)</label>
+          <textarea className="cu-input" rows={3} placeholder="e.g. I’m visiting family there and can present at my old school." style={{ marginTop: 6 }} />
+        </div>
+        <div style={{ flex: 1 }} />
+        <Button variant="primary" size="lg" block iconRight={<Icon name="send" size={18} />}
+          onClick={() => setSent(true)}>Send request to Regional Manager</Button>
+      </Screen>
     </>
   );
 }
@@ -545,8 +758,15 @@ export function ReferStudent({ nav }) {
           <input className="cu-input" placeholder="Full name" style={{ marginTop: 6 }} /></div>
         <div><label style={lbl}>Their school</label>
           <input className="cu-input" placeholder="Current school" style={{ marginTop: 6 }} /></div>
+        <div><label style={lbl}>Country of school</label>
+          <select className="cu-input" defaultValue="" style={{ marginTop: 6 }}>
+            <option value="" disabled>Select a country</option>
+            {allCountries.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select></div>
         <div><label style={lbl}>Their email (optional)</label>
           <input className="cu-input" type="email" placeholder="name@email.com" style={{ marginTop: 6 }} /></div>
+        <div><label style={lbl}>WhatsApp number</label>
+          <input className="cu-input" type="tel" inputMode="tel" placeholder="Full international format, e.g. +254 712 345678" style={{ marginTop: 6 }} /></div>
         <div><label style={lbl}>Why would they be a good fit?</label>
           <textarea className="cu-input" rows={3} placeholder="A short note…" style={{ marginTop: 6 }} /></div>
         <Card variant="success" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

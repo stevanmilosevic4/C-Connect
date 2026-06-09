@@ -1,34 +1,75 @@
 // C>Connect — mock data (ported from the design handoff data.js).
 
 export const schools = [
+  // --- Germany ---
   { id: 'lincoln', name: 'Lincoln High School', city: 'Hamburg', country: 'Germany',
     dist: '12 km', status: 'contacted', contact: 'Dr. A. Weber', role: 'Career Counselor',
-    email: 'a.weber@lincoln-hs.de', x: 52, y: 22, visits: 0 },
+    email: 'a.weber@lincoln-hs.de', x: 52, y: 22, lat: 53.5511, lng: 9.9937, visits: 0 },
   { id: 'goethe', name: 'Goethe Gymnasium', city: 'Berlin', country: 'Germany',
     dist: '290 km', status: 'visited', contact: 'M. Schmidt', role: 'Head of Sixth Form',
-    email: 'schmidt@goethe-gym.de', x: 68, y: 38, visits: 2 },
+    email: 'schmidt@goethe-gym.de', x: 68, y: 38, lat: 52.52, lng: 13.405, visits: 2 },
   { id: 'stmary', name: "St. Mary's College", city: 'Munich', country: 'Germany',
     dist: '610 km', status: 'pending', contact: 'Fr. Bauer', role: 'Principal',
-    email: 'bauer@stmary.de', x: 60, y: 70, visits: 0 },
+    email: 'bauer@stmary.de', x: 60, y: 70, lat: 48.1351, lng: 11.582, visits: 0 },
   { id: 'humboldt', name: 'Humboldt Schule', city: 'Cologne', country: 'Germany',
     dist: '340 km', status: 'new', contact: '—', role: '',
-    email: '', x: 40, y: 48, visits: 0 },
+    email: '', x: 40, y: 48, lat: 50.9375, lng: 6.9603, visits: 0 },
   { id: 'leibniz', name: 'Leibniz Gymnasium', city: 'Bremen', country: 'Germany',
     dist: '3 km', status: 'visited', contact: 'K. Hoffmann', role: 'Counselor',
-    email: 'hoffmann@leibniz.de', x: 46, y: 28, visits: 3 },
+    email: 'hoffmann@leibniz.de', x: 46, y: 28, lat: 53.0793, lng: 8.8017, visits: 3 },
   { id: 'westfield', name: 'Gymnasium West', city: 'Dortmund', country: 'Germany',
     dist: '300 km', status: 'new', contact: '—', role: '',
-    email: '', x: 34, y: 42, visits: 0 },
+    email: '', x: 34, y: 42, lat: 51.5136, lng: 7.4653, visits: 0 },
+  { id: 'frankfurt-is', name: 'Frankfurt International School', city: 'Frankfurt', country: 'Germany',
+    dist: '440 km', status: 'contacted', contact: 'S. Wagner', role: 'Head of Guidance',
+    email: 'wagner@fis.de', x: 44, y: 56, lat: 50.1109, lng: 8.6821, visits: 1 },
+  // --- Austria ---
   { id: 'mozart', name: 'Mozart Gymnasium', city: 'Vienna', country: 'Austria',
     dist: '690 km', status: 'contacted', contact: 'Dr. L. Gruber', role: 'Director of Studies',
-    email: 'gruber@mozart-gym.at', x: 64, y: 90, visits: 1 },
+    email: 'gruber@mozart-gym.at', x: 64, y: 90, lat: 48.2082, lng: 16.3738, visits: 1 },
+  { id: 'graz-rg', name: 'Graz Realgymnasium', city: 'Graz', country: 'Austria',
+    dist: '760 km', status: 'new', contact: '—', role: '',
+    email: '', x: 60, y: 96, lat: 47.0707, lng: 15.4395, visits: 0 },
+  // --- Netherlands ---
   { id: 'amstel', name: 'Amstel Lyceum', city: 'Amsterdam', country: 'Netherlands',
     dist: '360 km', status: 'new', contact: '—', role: '',
-    email: '', x: 13, y: 35, visits: 0 },
+    email: '', x: 13, y: 35, lat: 52.3676, lng: 4.9041, visits: 0 },
+  { id: 'rotterdam-lyceum', name: 'Rotterdam Lyceum', city: 'Rotterdam', country: 'Netherlands',
+    dist: '390 km', status: 'contacted', contact: 'J. Visser', role: 'Dean',
+    email: 'visser@rotterdam-lyceum.nl', x: 10, y: 40, lat: 51.9244, lng: 4.4777, visits: 0 },
+  // --- Poland ---
+  { id: 'warsaw-lyceum', name: 'Warsaw Lyceum XIV', city: 'Warsaw', country: 'Poland',
+    dist: '850 km', status: 'visited', contact: 'A. Kowalski', role: 'Career Advisor',
+    email: 'kowalski@lo14.waw.pl', x: 86, y: 40, lat: 52.2297, lng: 21.0122, visits: 2 },
+  { id: 'krakow-gim', name: 'Kraków Gymnasium', city: 'Kraków', country: 'Poland',
+    dist: '900 km', status: 'new', contact: '—', role: '',
+    email: '', x: 84, y: 56, lat: 50.0647, lng: 19.945, visits: 0 },
+  // --- France ---
+  { id: 'paris-saclay', name: 'Lycée Paris-Saclay', city: 'Paris', country: 'France',
+    dist: '880 km', status: 'contacted', contact: 'C. Laurent', role: 'Proviseur',
+    email: 'laurent@lycee-saclay.fr', x: 18, y: 64, lat: 48.8566, lng: 2.3522, visits: 0 },
+  // --- Kenya ---
+  { id: 'nairobi-academy', name: 'Nairobi Academy', city: 'Nairobi', country: 'Kenya',
+    dist: '6 400 km', status: 'contacted', contact: 'W. Otieno', role: 'Head of Careers',
+    email: 'otieno@nairobi-academy.ac.ke', x: 70, y: 96, lat: -1.2921, lng: 36.8219, visits: 0 },
+  { id: 'mombasa-hs', name: 'Mombasa High School', city: 'Mombasa', country: 'Kenya',
+    dist: '6 800 km', status: 'new', contact: '—', role: '',
+    email: '', x: 74, y: 99, lat: -4.0435, lng: 39.6682, visits: 0 },
 ];
 
 // Countries the recruitment team operates across (derived from schools).
 export const countries = [...new Set(schools.map((s) => s.country))];
+export const allCountries = countries;
+
+// Cities within a country (or all if none given).
+export function citiesIn(country) {
+  return [...new Set(schools.filter((s) => !country || country === 'all' || s.country === country).map((s) => s.city))];
+}
+// Schools within a set of allowed countries.
+export function schoolsIn(countryList) {
+  if (!countryList || !countryList.length) return [];
+  return schools.filter((s) => countryList.includes(s.country));
+}
 
 export const requests = [
   { id: 'r1', school: 'lincoln', ambassador: 'Maria Sánchez', role: 'Student',
@@ -179,17 +220,21 @@ export const notifications = {
     { id: 'rn3', icon: 'dollar', color: 'var(--cu-shiny-yellow)', title: 'Reimbursement request',
       sub: 'Jonas Krause · brochure printing · receipt attached', when: '1d ago',
       kind: 'approval', amount: 18, what: 'reimbursement' },
+    { id: 'rn4', icon: 'map', color: 'var(--cu-mobility-blue)', title: 'Country access request',
+      sub: 'Anna Brandt · requests access to schools in France', when: '4h ago', kind: 'access' },
   ],
 };
 notifications.alumni = notifications.student;
 
 export const me = {
   student: { name: 'Maria Sánchez', role: 'Student Ambassador', field: 'Robotics & Intelligent Systems',
-    year: '2026', level: 'builder', visits: 7, fairs: 2, earned: 175, toNext: 3, progress: 7, progressMax: 10 },
+    year: '2026', level: 'builder', visits: 7, fairs: 2, earned: 175, toNext: 3, progress: 7, progressMax: 10,
+    countries: ['Germany'], video: { status: 'none', verifiedOn: null } },
   alumni: { name: 'Jonas Krause', role: 'Alumni Ambassador', field: 'Computer Science',
-    year: '2019', level: 'constructor', visits: 14, fairs: 5, earned: 350, toNext: 0, progress: 10, progressMax: 10 },
+    year: '2019', level: 'constructor', visits: 14, fairs: 5, earned: 350, toNext: 0, progress: 10, progressMax: 10,
+    countries: ['Germany', 'Austria'], video: { status: 'verified', verifiedOn: '2026-02-10' } },
   parent: { name: 'Thomas Becker', role: 'Parent Ambassador', child: 'Lena, applying 2026',
-    schoolsAdded: 4, visits: 3, referrals: 2 },
+    schoolsAdded: 4, visits: 3, referrals: 2, countries: ['Germany'], video: { status: 'none', verifiedOn: null } },
   rm: { name: 'Lena Vogt', role: 'Regional Manager', region: 'Germany', pending: 3,
     ambassadors: 24, schools: 48, fairs: 3 },
 };
