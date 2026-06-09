@@ -118,6 +118,7 @@ export function ParentProfile({ me, nav, onSignOut }) {
             <div style={{ fontSize: 12.5, color: 'var(--text-subtle)', marginTop: 2 }}>Parent of {me.child}</div>
           </div>
         </Card>
+        <ListRow icon="phone" iconColor="var(--cu-healthy-green)" title="Your Regional Manager" sub="Message or email them" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.go('contact-rm')} />
         <ListRow icon="settings" iconColor="var(--neutral-600)" title="Settings & notifications" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.go('settings')} />
         <ListRow icon="logout" iconColor="var(--cu-diversity-red)" title="Sign out" onClick={onSignOut} />
       </Screen>

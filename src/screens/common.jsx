@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Card, Avatar } from '../ds/index.jsx';
 import { Icon } from '../icons.jsx';
 import { AppBar, RoundBtn, Screen, SectionLabel, ListRow } from '../shell.jsx';
-import { notifications } from '../data.js';
+import { notifications, regionalManager } from '../data.js';
 import { listPendingSubmissions, reviewSubmission } from '../lib/api.js';
 
 const lbl = { fontSize: 13, fontWeight: 600, color: 'var(--text-strong)' };
@@ -156,6 +156,46 @@ export function Notifications({ role, nav }) {
             </div>
           </Card>
         ))}
+      </Screen>
+    </>
+  );
+}
+
+// ============ CONTACT REGIONAL MANAGER ============
+export function ContactRM({ nav }) {
+  const rm = regionalManager;
+  const wa = 'https://wa.me/' + (rm.whatsapp || '').replace(/[^\d]/g, '');
+  const ContactLink = ({ href, icon, color, label, value }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', background: '#fff',
+      border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '11px 12px',
+      display: 'flex', alignItems: 'center', gap: 11 }}>
+      <span style={{ width: 38, height: 38, borderRadius: 10, flex: 'none', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', background: color, color: '#fff' }}><Icon name={icon} size={19} /></span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)' }}>{label}</span>
+        <span style={{ display: 'block', fontWeight: 700, fontSize: 14, color: 'var(--text-strong)',
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</span>
+      </span>
+      <Icon name="arrowRight" size={17} color="var(--neutral-400)" />
+    </a>
+  );
+  return (
+    <>
+      <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Your Regional Manager" />
+      <Screen bg="var(--surface-subtle)">
+        <Card style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
+          <Avatar name={rm.name || 'RM'} size={52} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 900, fontSize: 18, color: 'var(--cu-navy)' }}>{rm.name || 'To be assigned'}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Regional Manager{rm.region ? ` · ${rm.region}` : ''}</div>
+          </div>
+        </Card>
+        <div style={{ fontSize: 13.5, color: 'var(--text-body)', lineHeight: 1.55 }}>
+          Your Regional Manager approves your requests and helps you connect with schools. Reach out any time.
+        </div>
+        <SectionLabel>Contact</SectionLabel>
+        <ContactLink href={wa} icon="phone" color="var(--cu-healthy-green)" label="WhatsApp" value={rm.whatsapp} />
+        <ContactLink href={`mailto:${rm.email}`} icon="mail" color="var(--cu-navy)" label="Email" value={rm.email} />
       </Screen>
     </>
   );

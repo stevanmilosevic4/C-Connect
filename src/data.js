@@ -162,8 +162,18 @@ export const giftHistory = [
 export const REWARDS = {
   visit: { student: 25, alumni: 50 },
   fair: { student: 50, alumni: 100 },
-  video: 25,      // "Day in the life" video
+  video: 25,      // "Day in the life" video (students)
+  interview: 25,  // alumni written interview
   referral: 200,  // when a referred student enrols
+};
+
+// The ambassador's Regional Manager contact. Assigned per region — placeholder
+// values here; edit when the real RM is assigned.
+export const regionalManager = {
+  name: 'Lena Vogt',
+  region: 'Germany',
+  email: 'lena.vogt@constructor.university',
+  whatsapp: '+49 151 2345 6789',
 };
 
 export function rewardFor(kind, role) {

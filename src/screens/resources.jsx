@@ -307,3 +307,116 @@ export function SignUpSheet({ nav }) {
     </>
   );
 }
+
+// ============ ALUMNI — ANSWER AN INTERVIEW ============
+const INTERVIEW_QS = [
+  'What did you study at Constructor University Bremen, and when did you graduate?',
+  'Why did you choose Constructor University?',
+  'What is your favourite memory from campus?',
+  'How did the international community shape your experience?',
+  'Which professor or course influenced you most, and why?',
+  'What does your career look like today?',
+  'How did your studies prepare you for your career?',
+  'What was the biggest challenge you overcame as a student?',
+  'What skills from Constructor do you use most today?',
+  'Tell us about a project or piece of research you are proud of.',
+  'How did living on campus shape who you are?',
+  'How did education, research and technology — the three pillars — show up in your studies?',
+  'What surprised you most about studying in Bremen?',
+  'How do you stay connected with the Constructor community?',
+  'What would you tell a parent considering Constructor for their child?',
+  'What makes a Constructor graduate stand out?',
+  'What is your proudest achievement since graduating?',
+  'Describe your student-to-professional journey in one sentence.',
+  'What advice would you give a prospective student?',
+  'Why should a student choose Constructor today?',
+];
+
+function UploadTile({ icon = 'camera', label, hint, value, onChange, accept = 'image/*' }) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 13px', borderRadius: 'var(--radius-md)',
+      border: '2px dashed var(--border-default)', background: '#fff', cursor: 'pointer' }}>
+      <span style={{ width: 38, height: 38, borderRadius: 10, flex: 'none', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', background: 'rgba(0,140,227,0.10)', color: 'var(--cu-mobility-blue)' }}>
+        <Icon name={icon} size={19} /></span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontWeight: 700, fontSize: 13.5, color: 'var(--text-strong)' }}>{value ? value : label}</span>
+        {hint && <span style={{ display: 'block', fontSize: 11.5, color: 'var(--text-subtle)' }}>{hint}</span>}
+      </span>
+      <Icon name="plus" size={18} color="var(--cu-mobility-blue)" />
+      <input type="file" accept={accept} style={{ display: 'none' }}
+        onChange={(e) => onChange(e.target.files[0]?.name || null)} />
+    </label>
+  );
+}
+
+export function Interview({ nav, role }) {
+  const amount = rewardFor('interview', role);
+  const [headshot, setHeadshot] = React.useState(null);
+  const [uniPic, setUniPic] = React.useState(null);
+  const [filmedOpen, setFilmedOpen] = React.useState(false);
+  const [filmedRequested, setFilmedRequested] = React.useState(false);
+  const [sent, setSent] = React.useState(false);
+
+  if (sent) return (
+    <Sent nav={nav} title="Interview submitted"
+      body={`Thank you for sharing your story. Your interview has been sent to your Regional Manager. Once reviewed, your €${amount} reward is released.`} />
+  );
+
+  return (
+    <>
+      <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Answer an interview" />
+      <Screen bg="var(--surface-subtle)">
+        <div style={{ fontSize: 13.5, color: 'var(--text-body)', lineHeight: 1.55 }}>
+          Share your Constructor story in a short written interview — answer the questions below and earn a <strong style={{ fontWeight: 700 }}>€{amount} gift card</strong>.
+        </div>
+        <RewardCard amount={amount} when="on approval" label="Interview reward" />
+
+        {/* filmed interview opt-in */}
+        <Card style={{ display: 'flex', flexDirection: 'column', gap: 10, borderLeft: '3px solid var(--cu-mobility-blue)' }}>
+          <button onClick={() => setFilmedOpen((v) => !v)} style={{ display: 'flex', alignItems: 'center', gap: 10,
+            background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>
+            <span style={{ width: 24, height: 24, borderRadius: 7, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: filmedOpen ? 'none' : '2px solid var(--border-default)', background: filmedOpen ? 'var(--cu-mobility-blue)' : '#fff' }}>
+              {filmedOpen && <Icon name="check" size={15} color="#fff" stroke={3} />}</span>
+            <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--cu-navy)' }}>I’m comfortable with an online, filmed interview</span>
+          </button>
+          {filmedOpen && (filmedRequested ? (
+            <div style={{ fontSize: 12.5, color: '#066b54', fontWeight: 600 }}>
+              <Icon name="checkCircle" size={14} style={{ display: 'inline', verticalAlign: -2, marginRight: 4 }} />
+              Requested — your Regional Manager will reach out to arrange a time.
+            </div>
+          ) : (
+            <Button variant="accent" size="md" block iconLeft={<Icon name="camera" size={18} />}
+              onClick={() => setFilmedRequested(true)}>Request a filmed interview</Button>
+          ))}
+        </Card>
+
+        <SectionLabel>About you</SectionLabel>
+        <UploadTile icon="user" label="Add a headshot" hint="Required · clear photo of your face" value={headshot} onChange={setHeadshot} />
+        <UploadTile icon="camera" label="Add a university photo" hint="Optional · a photo from your time at Constructor" value={uniPic} onChange={setUniPic} />
+        <div><label style={lbl}>LinkedIn</label>
+          <input className="cu-input" type="url" placeholder="linkedin.com/in/yourname" style={{ marginTop: 6 }} /></div>
+        <div><label style={lbl}>Instagram</label>
+          <input className="cu-input" placeholder="@yourhandle" style={{ marginTop: 6 }} /></div>
+
+        <SectionLabel>20 questions</SectionLabel>
+        {INTERVIEW_QS.map((qq, i) => (
+          <div key={i}>
+            <label style={{ ...lbl, display: 'block', lineHeight: 1.4 }}>
+              <span style={{ color: 'var(--cu-mobility-blue)', fontWeight: 700 }}>{i + 1}.</span> {qq}
+            </label>
+            <textarea className="cu-input" rows={2} placeholder="Your answer…" style={{ marginTop: 6 }} />
+          </div>
+        ))}
+
+        <div style={{ flex: 1, minHeight: 4 }} />
+        <Button variant="primary" size="lg" block disabled={!headshot} iconRight={<Icon name="send" size={18} />}
+          onClick={() => setSent(true)}>Submit interview</Button>
+        <div style={{ fontSize: 12, color: 'var(--text-subtle)', textAlign: 'center' }}>
+          Sent to your Regional Manager for review · €{amount} on approval
+        </div>
+      </Screen>
+    </>
+  );
+}

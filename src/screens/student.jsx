@@ -12,7 +12,7 @@ import { SchoolsMap } from '../components/SchoolsMap.jsx';
 const tierName = (k) => tiers.find((t) => t.key === k)?.name || k;
 
 // ============ DASHBOARD ============
-export function Dashboard({ me, nav }) {
+export function Dashboard({ me, nav, role }) {
   const nextTier = tiers[tiers.findIndex((t) => t.key === me.level) + 1];
   return (
     <>
@@ -50,10 +50,17 @@ export function Dashboard({ me, nav }) {
         </div>
 
         <SectionLabel>Earn &amp; resources</SectionLabel>
-        <ListRow icon="camera" iconColor="var(--cu-mobility-blue)" title="Make a video"
-          sub={`Day in the life · €${rewardFor('video')}`}
-          right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
-          onClick={() => nav.go('make-video')} />
+        {role === 'alumni' ? (
+          <ListRow icon="award" iconColor="var(--cu-mobility-blue)" title="Answer an interview"
+            sub={`20 questions · €${rewardFor('interview')}`}
+            right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
+            onClick={() => nav.go('interview')} />
+        ) : (
+          <ListRow icon="camera" iconColor="var(--cu-mobility-blue)" title="Make a video"
+            sub={`Day in the life · €${rewardFor('video')}`}
+            right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
+            onClick={() => nav.go('make-video')} />
+        )}
         <ListRow icon="mail" iconColor="var(--cu-navy)" title="Print brochures"
           sub="Hand out at schools · pay &amp; claim back"
           right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
@@ -62,6 +69,10 @@ export function Dashboard({ me, nav }) {
           sub="Collect interested students’ details"
           right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
           onClick={() => nav.go('signup-sheet')} />
+        <ListRow icon="phone" iconColor="var(--cu-healthy-green)" title="Your Regional Manager"
+          sub="Message or email them"
+          right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
+          onClick={() => nav.go('contact-rm')} />
 
         <SectionLabel action={<button onClick={() => nav.go('requests')} style={linkBtn}>See all</button>}>
           Your requests
@@ -258,23 +269,33 @@ export function MapScreen({ nav, role = 'student', countries }) {
 
         {!isAdmin && lockedCountries.length > 0 && (
           <>
-            <SectionLabel>Other countries — access needed</SectionLabel>
-            {lockedCountries.map((c) => (
-              <Card key={c} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-                <span style={{ width: 38, height: 38, borderRadius: 10, flex: 'none', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center', background: 'var(--neutral-100)', color: 'var(--neutral-500)' }}>
-                  <Icon name="map" size={19} /></span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-strong)' }}>{c}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{schoolsIn([c]).length} schools · locked</div>
-                </div>
-                <Button variant="secondary" size="sm" onClick={() => nav.go('request-access', { country: c })}>Request access</Button>
-              </Card>
-            ))}
+            <SectionLabel>Visit a school in another country?</SectionLabel>
+            <RequestAnotherCountry nav={nav} exclude={myCountries} />
           </>
         )}
       </Screen>
     </>
+  );
+}
+
+// Request access to a school outside your registered countries.
+function RequestAnotherCountry({ nav, exclude = [] }) {
+  const [name, setName] = React.useState('');
+  const [country, setCountry] = React.useState('');
+  const options = allCountries.filter((c) => !exclude.includes(c));
+  return (
+    <Card style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+        Want to visit a school outside your countries? Add the school and choose its country to request access from your Regional Manager.
+      </div>
+      <input className="cu-input" placeholder="School name" value={name} onChange={(e) => setName(e.target.value)} />
+      <select className="cu-input" value={country} onChange={(e) => setCountry(e.target.value)}>
+        <option value="" disabled>Choose a country</option>
+        {options.map((c) => <option key={c} value={c}>{c}</option>)}
+      </select>
+      <Button variant="primary" size="md" block disabled={!country} iconRight={<Icon name="send" size={17} />}
+        onClick={() => nav.go('request-access', { country, name })}>Request access</Button>
+    </Card>
   );
 }
 
@@ -359,46 +380,19 @@ export function BatchRequest({ nav, params }) {
 // ============ REQUEST COUNTRY ACCESS ============
 export function RequestAccess({ nav, params }) {
   const country = params.country || 'another country';
-  const [sent, setSent] = React.useState(false);
-  if (sent) {
-    return (
-      <Screen bg="var(--cu-navy)">
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16, padding: '0 22px' }}>
-          <span style={{ width: 76, height: 76, borderRadius: '50%', background: 'rgba(0,140,227,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="send" size={30} color="#fff" /></span>
-          <div style={{ fontWeight: 900, fontSize: 22, color: '#fff' }}>Request sent</div>
-          <div style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 300 }}>
-            Your Regional Manager will review your request to work with schools in <strong style={{ fontWeight: 700, color: '#fff' }}>{country}</strong>. You’ll be notified once it’s approved.
-          </div>
-          <Button variant="accent" size="lg" block style={{ maxWidth: 280 }} onClick={() => nav.back()}>Back to map</Button>
-        </div>
-      </Screen>
-    );
-  }
+  const name = params.name;
   return (
-    <>
-      <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Request access" />
-      <Screen bg="var(--surface-subtle)">
-        <Card style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ width: 44, height: 44, borderRadius: 11, flex: 'none', background: 'var(--cu-navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="map" size={22} color="#fff" /></span>
-          <div>
-            <div style={{ fontWeight: 900, fontSize: 17, color: 'var(--cu-navy)' }}>Schools in {country}</div>
-            <div style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>Outside your registered countries</div>
-          </div>
-        </Card>
-        <div style={{ fontSize: 13.5, color: 'var(--text-body)', lineHeight: 1.55 }}>
-          You registered to work with schools in a set number of countries. To visit schools in <strong style={{ fontWeight: 700 }}>{country}</strong>, ask your Regional Manager to grant you access.
+    <Screen bg="var(--cu-navy)">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 16, padding: '0 22px' }}>
+        <span style={{ width: 76, height: 76, borderRadius: '50%', background: 'rgba(0,140,227,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="send" size={30} color="#fff" /></span>
+        <div style={{ fontWeight: 900, fontSize: 22, color: '#fff' }}>Request sent</div>
+        <div style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 300 }}>
+          Your Regional Manager will review your request to visit {name ? <strong style={{ fontWeight: 700, color: '#fff' }}>{name}</strong> : 'a school'} in <strong style={{ fontWeight: 700, color: '#fff' }}>{country}</strong>. You’ll be notified once it’s approved.
         </div>
-        <div>
-          <label style={lbl}>Why do you need access? (optional)</label>
-          <textarea className="cu-input" rows={3} placeholder="e.g. I’m visiting family there and can present at my old school." style={{ marginTop: 6 }} />
-        </div>
-        <div style={{ flex: 1 }} />
-        <Button variant="primary" size="lg" block iconRight={<Icon name="send" size={18} />}
-          onClick={() => setSent(true)}>Send request to Regional Manager</Button>
-      </Screen>
-    </>
+        <Button variant="accent" size="lg" block style={{ maxWidth: 280 }} onClick={() => nav.back()}>Back to map</Button>
+      </div>
+    </Screen>
   );
 }
 
@@ -738,6 +732,7 @@ export function Profile({ me, nav, onSignOut }) {
         </Card>
         <SectionLabel>Account</SectionLabel>
         <ListRow icon="award" iconColor="var(--cu-mobility-blue)" title="Your status" sub={tierName(me.level) + ' tier'} right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.setTab('status')} />
+        <ListRow icon="phone" iconColor="var(--cu-healthy-green)" title="Your Regional Manager" sub="Message or email them" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.go('contact-rm')} />
         <ListRow icon="settings" iconColor="var(--neutral-600)" title="Settings & notifications" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.go('settings')} />
         <ListRow icon="logout" iconColor="var(--cu-diversity-red)" title="Sign out" onClick={onSignOut} />
       </Screen>

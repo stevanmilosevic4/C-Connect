@@ -65,8 +65,10 @@ function renderScreen(role, tab, view, params, nav, me, onSignOut, countries) {
       'batch-request': () => <ST.BatchRequest nav={nav} params={params} />,
       'request-access': () => <ST.RequestAccess nav={nav} params={params} />,
       'make-video': () => <RES.MakeVideo nav={nav} role={role} />,
+      'interview': () => <RES.Interview nav={nav} role={role} />,
       'brochures': () => <RES.Brochures nav={nav} role={role} />,
       'signup-sheet': () => <RES.SignUpSheet nav={nav} />,
+      'contact-rm': () => <CO.ContactRM nav={nav} />,
       // parent
       'add-refer': () => <PA.AddRefer nav={nav} params={params} />,
       // rm
@@ -98,7 +100,7 @@ function renderScreen(role, tab, view, params, nav, me, onSignOut, countries) {
   }
   // student / alumni
   return {
-    home: () => <ST.Dashboard me={me} nav={nav} />,
+    home: () => <ST.Dashboard me={me} nav={nav} role={role} />,
     map: () => <ST.MapScreen nav={nav} role={role} countries={countries} />,
     fairs: () => <ST.Fairs role={role} />,
     status: () => <ST.Status me={me} />,
