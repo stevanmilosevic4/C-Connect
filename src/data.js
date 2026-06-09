@@ -19,7 +19,16 @@ export const schools = [
   { id: 'westfield', name: 'Gymnasium West', city: 'Dortmund', country: 'Germany',
     dist: '300 km', status: 'new', contact: '—', role: '',
     email: '', x: 34, y: 42, visits: 0 },
+  { id: 'mozart', name: 'Mozart Gymnasium', city: 'Vienna', country: 'Austria',
+    dist: '690 km', status: 'contacted', contact: 'Dr. L. Gruber', role: 'Director of Studies',
+    email: 'gruber@mozart-gym.at', x: 64, y: 90, visits: 1 },
+  { id: 'amstel', name: 'Amstel Lyceum', city: 'Amsterdam', country: 'Netherlands',
+    dist: '360 km', status: 'new', contact: '—', role: '',
+    email: '', x: 13, y: 35, visits: 0 },
 ];
+
+// Countries the recruitment team operates across (derived from schools).
+export const countries = [...new Set(schools.map((s) => s.country))];
 
 export const requests = [
   { id: 'r1', school: 'lincoln', ambassador: 'Maria Sánchez', role: 'Student',
@@ -39,6 +48,10 @@ export const inbox = [
     visits: 14, dates: ['22 Mar'], note: 'I graduated from Constructor in 2019, CS.', when: '5h ago' },
   { id: 'i3', school: 'westfield', ambassador: 'Thomas Becker', role: 'Parent', level: '—',
     visits: 3, dates: ['28 Mar'], note: 'My daughter attends; I know the head teacher.', when: '1d ago' },
+  { id: 'i4', school: 'mozart', ambassador: 'Lukas Gruber', role: 'Student', level: 'Catalyst',
+    visits: 2, dates: ['15 Apr'], note: 'I can present in German or English.', when: '3h ago' },
+  { id: 'i5', school: 'amstel', ambassador: 'Sanne de Vries', role: 'Alumni', level: 'Builder',
+    visits: 5, dates: ['02 May'], note: 'I studied here and know the head of school.', when: '1d ago' },
 ];
 
 export const fairs = [

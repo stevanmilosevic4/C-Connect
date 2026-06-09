@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Card, Badge, StatusPill, Avatar, Chip } from '../ds/index.jsx';
 import { Icon } from '../icons.jsx';
 import { AppBar, RoundBtn, Screen, SectionLabel, StatTile, ListRow, statusPill, pinColor } from '../shell.jsx';
-import { schools, inbox, fairs, ambassadors, school } from '../data.js';
+import { schools, inbox, fairs, ambassadors, school, countries } from '../data.js';
 
 const lbl = { fontSize: 13, fontWeight: 600, color: 'var(--text-strong)' };
 
@@ -127,18 +127,20 @@ export function ParentProfile({ me }) {
 
 // ============ RM — INBOX ============
 export function RMInbox({ me, nav }) {
-  const [f, setF] = React.useState('new');
+  const [country, setCountry] = React.useState('All');
+  const list = inbox.filter((it) => country === 'All' || school(it.school).country === country);
   return (
     <>
-      <AppBar title="Inbox" subtitle={`${me.region} · ${me.pending} awaiting you`}
-        right={<Chip active>Germany ▾</Chip>} />
+      <AppBar title="Inbox"
+        subtitle={`${country === 'All' ? 'All countries' : country} · ${list.length} awaiting you`} />
       <Screen bg="var(--surface-subtle)">
-        <div style={{ display: 'flex', gap: 8 }}>
-          {[['new', `New ${inbox.length}`], ['approved', 'Approved'], ['all', 'All']].map(([k, l]) => (
-            <Chip key={k} active={f === k} onClick={() => setF(k)}>{l}</Chip>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+          <Chip active={country === 'All'} onClick={() => setCountry('All')}>All countries</Chip>
+          {countries.map((c) => (
+            <Chip key={c} active={country === c} onClick={() => setCountry(c)}>{c}</Chip>
           ))}
         </div>
-        {inbox.map((it) => {
+        {list.map((it) => {
           const sch = school(it.school);
           return (
             <Card key={it.id} interactive elevation="raised" onClick={() => nav.go('review', { id: it.id })}
@@ -245,14 +247,22 @@ export function RMFairs() {
 }
 
 // ============ RM — SCHOOLS DB ============
-export function RMSchools() {
+export function RMSchools({ nav }) {
   const [f, setF] = React.useState('all');
-  const list = schools.filter((s) => f === 'all' || s.status === f);
+  const [country, setCountry] = React.useState('All');
+  const list = schools.filter((s) => (f === 'all' || s.status === f) && (country === 'All' || s.country === country));
   return (
     <>
-      <AppBar title="Schools" subtitle="Database & contacts" right={<RoundBtn name="plus" />} />
+      <AppBar title="Schools" subtitle="Database & contacts"
+        right={<RoundBtn name="plus" onClick={() => nav.go('add-school')} />} />
       <Screen bg="var(--surface-subtle)">
         <input className="cu-input" placeholder="Search schools…" />
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+          <Chip active={country === 'All'} onClick={() => setCountry('All')}>All countries</Chip>
+          {countries.map((c) => (
+            <Chip key={c} active={country === c} onClick={() => setCountry(c)}>{c}</Chip>
+          ))}
+        </div>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
           {[['all', 'All'], ['contacted', 'Contacted'], ['visited', 'Visited'], ['new', 'No contact']].map(([k, l]) => (
             <Chip key={k} active={f === k} onClick={() => setF(k)}>{l}</Chip>
@@ -260,9 +270,62 @@ export function RMSchools() {
         </div>
         {list.map((s) => (
           <ListRow key={s.id} icon="school" iconColor={pinColor(s.status)} title={s.name}
-            sub={`${s.city} · ${s.contact !== '—' ? s.contact : 'no contact'}`}
+            sub={`${s.city}, ${s.country} · ${s.contact !== '—' ? s.contact : 'no contact'}`}
             right={<Icon name="edit" size={17} color="var(--neutral-400)" />} />
         ))}
+      </Screen>
+    </>
+  );
+}
+
+// ============ RM — ADD SCHOOL (with multiple contacts) ============
+const CONTACT_ROLES = ['High school counselor', 'Teacher', 'Principal', 'Owner', 'Director'];
+
+export function AddSchool({ nav }) {
+  const [contacts, setContacts] = React.useState([{ name: '', email: '', phone: '', role: CONTACT_ROLES[0] }]);
+  const update = (i, k, v) => setContacts((cs) => cs.map((c, idx) => (idx === i ? { ...c, [k]: v } : c)));
+  const addContact = () => setContacts((cs) => [...cs, { name: '', email: '', phone: '', role: CONTACT_ROLES[0] }]);
+  const removeContact = (i) => setContacts((cs) => cs.filter((_, idx) => idx !== i));
+  return (
+    <>
+      <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Add a school" />
+      <Screen bg="var(--surface-subtle)">
+        <div><label style={lbl}>School name</label>
+          <input className="cu-input" placeholder="e.g. Gymnasium West" style={{ marginTop: 6 }} /></div>
+        <div><label style={lbl}>Address</label>
+          <textarea className="cu-input" rows={2} placeholder="Street, city, country" style={{ marginTop: 6 }} /></div>
+
+        <SectionLabel>Contacts</SectionLabel>
+        {contacts.map((c, i) => (
+          <Card key={i} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--cu-navy)' }}>Contact {i + 1}</span>
+              {contacts.length > 1 && (
+                <button onClick={() => removeContact(i)} style={{ background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--cu-diversity-red)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5, fontWeight: 600, padding: 0 }}>
+                  <Icon name="x" size={14} /> Remove
+                </button>
+              )}
+            </div>
+            <input className="cu-input" placeholder="Name" value={c.name} onChange={(e) => update(i, 'name', e.target.value)} />
+            <input className="cu-input" type="email" placeholder="Email" value={c.email} onChange={(e) => update(i, 'email', e.target.value)} />
+            <input className="cu-input" type="tel" placeholder="Phone" value={c.phone} onChange={(e) => update(i, 'phone', e.target.value)} />
+            <div>
+              <label style={{ ...lbl, fontSize: 12, color: 'var(--text-muted)' }}>Role at school</label>
+              <select className="cu-input" value={c.role} onChange={(e) => update(i, 'role', e.target.value)} style={{ marginTop: 6 }}>
+                {CONTACT_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+          </Card>
+        ))}
+        <Button variant="secondary" size="md" block iconLeft={<Icon name="plus" size={18} />} onClick={addContact}>
+          Add another contact
+        </Button>
+
+        <div style={{ flex: 1, minHeight: 8 }} />
+        <Button variant="primary" size="lg" block iconRight={<Icon name="check" size={18} />} onClick={nav.back}>
+          Save school
+        </Button>
       </Screen>
     </>
   );

@@ -44,11 +44,13 @@ export function Dashboard({ me, nav }) {
         <div style={{ display: 'flex', gap: 10 }}>
           <StatTile value={me.visits} label="Quests" />
           <StatTile value={me.fairs} label="Fairs" />
-          <StatTile value={'€' + me.earned} label="Earned" accent="var(--cu-healthy-green)" />
+          <StatTile value={'€' + me.earned} label="Total" accent="var(--cu-healthy-green)" />
         </div>
 
         <Button variant="accent" size="lg" block iconLeft={<Icon name="map" size={20} />}
           onClick={() => nav.setTab('map')}>Find schools on map</Button>
+        <Button variant="secondary" size="md" block iconLeft={<Icon name="users" size={18} />}
+          onClick={() => nav.go('refer-student')}>Refer a student</Button>
 
         <SectionLabel action={<button onClick={() => nav.go('requests')} style={linkBtn}>See all</button>}>
           Your requests
@@ -148,7 +150,7 @@ export function MapScreen({ nav }) {
   const selSchool = sel && school(sel);
   return (
     <>
-      <AppBar title="Germany" subtitle="Schools we have contact with"
+      <AppBar title="Schools" subtitle="Tap a pin to view details"
         right={<RoundBtn name="search" />} />
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <MapView schools={schools} filter={filter} selected={sel} onPick={setSel} />
@@ -499,6 +501,39 @@ export function Profile({ me, nav }) {
         <ListRow icon="award" iconColor="var(--cu-mobility-blue)" title="Your status" sub={tierName(me.level) + ' tier'} right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.setTab('status')} />
         <ListRow icon="settings" iconColor="var(--neutral-600)" title="Settings & notifications" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} />
         <ListRow icon="logout" iconColor="var(--cu-diversity-red)" title="Sign out" />
+      </Screen>
+    </>
+  );
+}
+
+// ============ REFER A STUDENT ============
+export function ReferStudent({ nav }) {
+  return (
+    <>
+      <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Refer a student" />
+      <Screen bg="var(--surface-subtle)">
+        <div style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>
+          Know a student who would thrive at Constructor University Bremen? Refer them — if they enrol, you receive a €200 Amazon gift card.
+        </div>
+        <div><label style={lbl}>Student name</label>
+          <input className="cu-input" placeholder="Full name" style={{ marginTop: 6 }} /></div>
+        <div><label style={lbl}>Their school</label>
+          <input className="cu-input" placeholder="Current school" style={{ marginTop: 6 }} /></div>
+        <div><label style={lbl}>Their email (optional)</label>
+          <input className="cu-input" type="email" placeholder="name@email.com" style={{ marginTop: 6 }} /></div>
+        <div><label style={lbl}>Why would they be a good fit?</label>
+          <textarea className="cu-input" rows={3} placeholder="A short note…" style={{ marginTop: 6 }} /></div>
+        <Card variant="success" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--cu-healthy-green)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+            <Icon name="gift" size={22} color="#fff" /></span>
+          <div>
+            <div style={{ fontSize: 12.5, color: '#066b54' }}>Referral reward — when they enrol</div>
+            <div style={{ fontWeight: 900, fontSize: 22, color: '#066b54', lineHeight: 1.1 }}>€200 Amazon gift card</div>
+          </div>
+        </Card>
+        <Button variant="primary" size="lg" block iconRight={<Icon name="arrowRight" size={18} />}
+          onClick={() => nav.reset('home')}>Send referral</Button>
       </Screen>
     </>
   );

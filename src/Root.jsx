@@ -6,9 +6,9 @@ import { AppInner, Login, RoleSelect } from './app.jsx';
 import { Icon } from './icons.jsx';
 
 const ROLE_META = [
-  { key: 'student', label: 'Student', sub: 'Quests · fairs · rewards', icon: 'sparkles' },
+  { key: 'student', label: 'Student', sub: 'Quests · fairs · rewards', icon: 'user' },
   { key: 'alumni', label: 'Alumni', sub: 'Same as student', icon: 'award' },
-  { key: 'parent', label: 'Parent', sub: 'Contribute · add · refer', icon: 'handshake' },
+  { key: 'parent', label: 'Parent', sub: 'Contribute · add · refer', icon: 'users' },
   { key: 'rm', label: 'Regional Manager', sub: 'Approvals · admin', icon: 'target' },
 ];
 

@@ -59,10 +59,12 @@ function renderScreen(role, tab, view, params, nav, me) {
       'req-email': () => <ST.ReqEmail nav={nav} params={params} />,
       'req-sent': () => <ST.ReqSent nav={nav} params={params} />,
       'log-visit': () => <ST.LogVisit nav={nav} params={params} />,
+      'refer-student': () => <ST.ReferStudent nav={nav} />,
       // parent
       'add-refer': () => <PA.AddRefer nav={nav} params={params} />,
       // rm
       'review': () => <RM.RMReview nav={nav} params={params} />,
+      'add-school': () => <RM.AddSchool nav={nav} />,
     }[view];
     if (v) return v();
   }
@@ -80,7 +82,7 @@ function renderScreen(role, tab, view, params, nav, me) {
       inbox: () => <RM.RMInbox me={me} nav={nav} />,
       map: () => <ST.MapScreen nav={nav} />,
       fairs: () => <RM.RMFairs />,
-      schools: () => <RM.RMSchools />,
+      schools: () => <RM.RMSchools nav={nav} />,
       people: () => <RM.RMPeople />,
     }[tab]();
   }
@@ -97,9 +99,9 @@ function renderScreen(role, tab, view, params, nav, me) {
 // ---- Role-select (first-run) ------------------------------
 export function RoleSelect({ onPick }) {
   const roles = [
-    { key: 'student', label: 'Student Ambassador', icon: 'sparkles', sub: 'Represent us at your old school' },
+    { key: 'student', label: 'Student Ambassador', icon: 'user', sub: 'Represent us at your old school' },
     { key: 'alumni', label: 'Alumni Ambassador', icon: 'award', sub: 'Open doors through your network' },
-    { key: 'parent', label: 'Parent Ambassador', icon: 'handshake', sub: 'Help Constructor grow — no targets' },
+    { key: 'parent', label: 'Parent Ambassador', icon: 'users', sub: 'Help Constructor grow — no targets' },
     { key: 'rm', label: 'Recruitment Team', icon: 'target', sub: 'Approve, post fairs, manage schools' },
   ];
   return (
