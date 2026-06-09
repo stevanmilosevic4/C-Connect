@@ -131,14 +131,23 @@ export function rewardFor(kind, role) {
   return r[role === 'alumni' ? 'alumni' : 'student'];
 }
 
-// --- Printable brochures (attached PDFs in /public/brochures). ----------------
+// --- Printable brochures (attached PDFs in /public/brochures).
+// Official 2025/26 print-ready files; ambassadors print and hand these out. ----
 export const brochures = [
-  { id: 'overview', name: 'Programmes Overview', desc: 'A4 · double-sided · full colour',
-    file: '/brochures/cu-programmes-overview.pdf' },
-  { id: 'campus', name: 'Campus & Student Life', desc: 'A5 · fold · full colour',
-    file: '/brochures/cu-campus-life.pdf' },
-  { id: 'admissions', name: 'Admissions & Scholarships', desc: 'A4 · single page',
-    file: '/brochures/cu-admissions-scholarships.pdf' },
+  { id: 'ug-onepager', name: 'Undergraduate — One Pager', desc: 'A4 · print-ready · 9 MB',
+    file: '/brochures/cu-undergraduate-onepager-a4.pdf' },
+  { id: 'ug-brochure', name: 'Undergraduate (Bachelor) Brochure', desc: 'A5 · print-ready · 20 MB',
+    file: '/brochures/cu-undergraduate-bachelor-brochure-a5.pdf' },
+  { id: 'ug-postcards', name: 'Undergraduate Postcards', desc: 'A6 · print-ready · 28 MB',
+    file: '/brochures/cu-undergraduate-postcards-a6.pdf' },
+  { id: 'grad-onepager', name: 'Graduate — One Pager', desc: 'A4 · print-ready · 5 MB',
+    file: '/brochures/cu-graduate-onepager-a4.pdf' },
+  { id: 'grad-brochure', name: 'Graduate Programmes Brochure', desc: 'A5 · print-ready · 39 MB',
+    file: '/brochures/cu-graduate-brochure-a5.pdf' },
+  { id: 'pbs-onepager', name: 'Pre-Bachelor Semester — One Pager', desc: 'A4 · print-ready · 6 MB',
+    file: '/brochures/cu-pre-bachelor-semester-onepager-a4.pdf' },
+  { id: 'anniversary', name: '25th Anniversary — One Pager', desc: 'A4 · print-ready · 8 MB',
+    file: '/brochures/cu-25th-anniversary-onepager-a4.pdf' },
 ];
 
 // --- Notifications (role-aware). RM items can be actioned. --------------------
