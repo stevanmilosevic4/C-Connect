@@ -9,7 +9,7 @@ const ROLE_META = [
   { key: 'student', label: 'Student', icon: 'user' },
   { key: 'alumni', label: 'Alumni', icon: 'award' },
   { key: 'parent', label: 'Parent', icon: 'users' },
-  { key: 'rm', label: 'Recruitment', icon: 'target' },
+  { key: 'rm', label: 'Constructor University Bremen', icon: 'target' },
 ];
 
 export default function Root() {
