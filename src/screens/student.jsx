@@ -8,8 +8,23 @@ import {
 } from '../shell.jsx';
 import { tiers, requests, fairs, giftHistory, schools, school, rewardFor, allCountries, citiesIn, schoolsIn } from '../data.js';
 import { SchoolsMap } from '../components/SchoolsMap.jsx';
+import { CountryPicker } from '../components/CountryPicker.jsx';
 
 const tierName = (k) => tiers.find((t) => t.key === k)?.name || k;
+
+// Celebration shown once an ambassador reaches the top "Constructor" tier.
+function ConstructorBanner() {
+  return (
+    <div style={{ background: 'linear-gradient(135deg,#00204D 0%,#0a3a72 100%)', borderRadius: 'var(--radius-md)',
+      padding: '14px 15px', color: '#fff', border: '1px solid rgba(255,255,255,0.12)' }}>
+      <div style={{ fontSize: 24, lineHeight: 1 }}>🎉🚀✨</div>
+      <div style={{ fontWeight: 900, fontSize: 18, marginTop: 8 }}>You’re officially a Constructor!</div>
+      <div style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,0.85)', marginTop: 6 }}>
+        Congratulations — this is the top tier, and it looks amazing on you. ⚡ In <strong style={{ fontWeight: 700, color: '#fff' }}>Constructor Theory</strong>, a constructor is something that can cause a change and then <strong style={{ fontWeight: 700, color: '#fff' }}>do it again, reliably</strong> — proven, repeatable success. That’s you now: students reach Constructor University Bremen through you, again and again. You’ve become what the university is named after. Keep going — keep constructing the future. 🚀
+      </div>
+    </div>
+  );
+}
 
 // ============ DASHBOARD ============
 export function Dashboard({ me, nav, role }) {
@@ -39,7 +54,9 @@ export function Dashboard({ me, nav, role }) {
               Status <Icon name="chevronRight" size={15} />
             </button>
           </div>
-          <TerminalProgress tierKey={me.level} value={me.progress} max={me.progressMax} />
+          {me.level === 'constructor'
+            ? <ConstructorBanner />
+            : <TerminalProgress tierKey={me.level} value={me.progress} max={me.progressMax} />}
         </Card>
 
         <div style={{ display: 'flex', gap: 10 }}>
@@ -184,9 +201,10 @@ function InstrRow({ icon, color, label, need, sub, onClick }) {
 }
 
 export function MapScreen({ nav, role = 'student', countries }) {
-  const isAdmin = role === 'rm';
-  const myCountries = isAdmin ? allCountries : (countries && countries.length ? countries : ['Germany']);
-  const lockedCountries = allCountries.filter((c) => !myCountries.includes(c));
+  const isAmbassador = role !== 'rm';          // students, alumni, parents (not the RM admin view)
+  const restricted = role === 'student';        // only students are limited to their sign-up countries
+  const myCountries = restricted ? (countries && countries.length ? countries : ['Germany']) : allCountries;
+  const lockedCountries = restricted ? allCountries.filter((c) => !myCountries.includes(c)) : [];
 
   const [country, setCountry] = React.useState('all');
   const [city, setCity] = React.useState('all');
@@ -204,7 +222,7 @@ export function MapScreen({ nav, role = 'student', countries }) {
 
   return (
     <>
-      <AppBar title="Schools map" subtitle={isAdmin ? 'All countries' : myCountries.join(' · ')}
+      <AppBar title="Schools map" subtitle={restricted ? myCountries.join(' · ') : 'All countries'}
         right={<RoundBtn name="bell" badge onClick={() => nav.go('notifications')} />} />
       <Screen bg="var(--surface-subtle)">
         <input className="cu-input" placeholder="Search school or city…" value={query}
@@ -222,7 +240,7 @@ export function MapScreen({ nav, role = 'student', countries }) {
 
         <SchoolsMap schools={visible} selected={selected} onToggle={toggle} height={230} />
 
-        {!isAdmin && (
+        {isAmbassador && (
           selected.length > 0 ? (
             <Card elevation="raised" style={{ display: 'flex', alignItems: 'center', gap: 10, border: '2px solid var(--cu-mobility-blue)' }}>
               <div style={{ flex: 1, fontSize: 13.5, fontWeight: 700, color: 'var(--cu-navy)' }}>{selected.length} selected</div>
@@ -237,7 +255,7 @@ export function MapScreen({ nav, role = 'student', countries }) {
           )
         )}
 
-        {!isAdmin && (
+        {isAmbassador && (
           <>
             <SectionLabel>Before you go</SectionLabel>
             <Card style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -267,7 +285,7 @@ export function MapScreen({ nav, role = 'student', countries }) {
           );
         })}
 
-        {!isAdmin && lockedCountries.length > 0 && (
+        {restricted && (
           <>
             <SectionLabel>Visit a school in another country?</SectionLabel>
             <RequestAnotherCountry nav={nav} exclude={myCountries} />
@@ -282,17 +300,13 @@ export function MapScreen({ nav, role = 'student', countries }) {
 function RequestAnotherCountry({ nav, exclude = [] }) {
   const [name, setName] = React.useState('');
   const [country, setCountry] = React.useState('');
-  const options = allCountries.filter((c) => !exclude.includes(c));
   return (
     <Card style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
         Want to visit a school outside your countries? Add the school and choose its country to request access from your Regional Manager.
       </div>
       <input className="cu-input" placeholder="School name" value={name} onChange={(e) => setName(e.target.value)} />
-      <select className="cu-input" value={country} onChange={(e) => setCountry(e.target.value)}>
-        <option value="" disabled>Choose a country</option>
-        {options.map((c) => <option key={c} value={c}>{c}</option>)}
-      </select>
+      <CountryPicker value={country} onSelect={setCountry} exclude={exclude} />
       <Button variant="primary" size="md" block disabled={!country} iconRight={<Icon name="send" size={17} />}
         onClick={() => nav.go('request-access', { country, name })}>Request access</Button>
     </Card>
@@ -675,24 +689,32 @@ export function Status({ me }) {
             </div>
           </div>
           <div style={{ marginTop: 16 }}>
-            <TerminalProgress tierKey={me.level} value={me.progress} max={me.progressMax} />
+            {me.level === 'constructor' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 700, color: '#fff' }}>
+                <span style={{ fontSize: 17 }}>🎉</span> Officially a Constructor — proven, repeatable success.
+              </div>
+            ) : (
+              <TerminalProgress tierKey={me.level} value={me.progress} max={me.progressMax} />
+            )}
           </div>
         </div>
 
         <div style={{ padding: '16px 16px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <Card style={{ display: 'flex', flexDirection: 'column', gap: 8, borderLeft: '3px solid var(--cu-mobility-blue)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <Icon name="atom" size={18} color="var(--cu-mobility-blue)" />
-              <span style={{ fontWeight: 900, fontSize: 14.5, color: 'var(--cu-navy)' }}>What’s a Constructor?</span>
-            </div>
-            <div style={{ fontSize: 13.5, lineHeight: 1.55, color: 'var(--text-body)' }}>
-              In physics, <strong style={{ fontWeight: 700 }}>Constructor Theory</strong> describes the world by which
-              transformations are <em style={{ fontStyle: 'normal', fontWeight: 700 }}>possible</em> — and a
-              <strong style={{ fontWeight: 700 }}> constructor</strong> is something that can cause a change
-              and then <strong style={{ fontWeight: 700 }}>do it again, reliably</strong>. The university is
-              named after exactly this idea. Your journey here mirrors it.
-            </div>
-          </Card>
+          {me.level === 'constructor' ? <ConstructorBanner /> : (
+            <Card style={{ display: 'flex', flexDirection: 'column', gap: 8, borderLeft: '3px solid var(--cu-mobility-blue)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <Icon name="atom" size={18} color="var(--cu-mobility-blue)" />
+                <span style={{ fontWeight: 900, fontSize: 14.5, color: 'var(--cu-navy)' }}>What’s a Constructor?</span>
+              </div>
+              <div style={{ fontSize: 13.5, lineHeight: 1.55, color: 'var(--text-body)' }}>
+                In physics, <strong style={{ fontWeight: 700 }}>Constructor Theory</strong> describes the world by which
+                transformations are <em style={{ fontStyle: 'normal', fontWeight: 700 }}>possible</em> — and a
+                <strong style={{ fontWeight: 700 }}> constructor</strong> is something that can cause a change
+                and then <strong style={{ fontWeight: 700 }}>do it again, reliably</strong>. The university is
+                named after exactly this idea. Your journey here mirrors it.
+              </div>
+            </Card>
+          )}
 
           <SectionLabel>Your journey</SectionLabel>
           <TierLadder current={me.level} />
@@ -742,6 +764,7 @@ export function Profile({ me, nav, onSignOut }) {
 
 // ============ REFER A STUDENT ============
 export function ReferStudent({ nav }) {
+  const [referCountry, setReferCountry] = React.useState('');
   return (
     <>
       <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Refer a student" />
@@ -754,10 +777,7 @@ export function ReferStudent({ nav }) {
         <div><label style={lbl}>Their school</label>
           <input className="cu-input" placeholder="Current school" style={{ marginTop: 6 }} /></div>
         <div><label style={lbl}>Country of school</label>
-          <select className="cu-input" defaultValue="" style={{ marginTop: 6 }}>
-            <option value="" disabled>Select a country</option>
-            {allCountries.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select></div>
+          <div style={{ marginTop: 6 }}><CountryPicker value={referCountry} onSelect={setReferCountry} /></div></div>
         <div><label style={lbl}>Their email (optional)</label>
           <input className="cu-input" type="email" placeholder="name@email.com" style={{ marginTop: 6 }} /></div>
         <div><label style={lbl}>WhatsApp number</label>

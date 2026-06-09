@@ -96,7 +96,7 @@ export default function Root() {
   let content;
   if (stage === 'login') content = <Login onLogin={() => setStage('role')} />;
   else if (stage === 'role') content = (
-    <RoleSelect onPick={(r) => { setRole(r); setStage(r === 'rm' ? 'app' : 'countries'); }} />
+    <RoleSelect onPick={(r) => { setRole(r); setStage(r === 'student' ? 'countries' : 'app'); }} />
   );
   else if (stage === 'countries') content = (
     <CountrySelect onDone={(cs) => { setSignupCountries(cs); setStage('app'); }} />
