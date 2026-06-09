@@ -25,6 +25,7 @@ export const TABS = {
   ],
   rm: [
     { key: 'inbox', label: 'Inbox', icon: 'inbox' },
+    { key: 'map', label: 'Map', icon: 'map' },
     { key: 'fairs', label: 'Fairs', icon: 'star' },
     { key: 'schools', label: 'Schools', icon: 'school' },
     { key: 'people', label: 'People', icon: 'users' },
@@ -77,6 +78,7 @@ function renderScreen(role, tab, view, params, nav, me) {
   if (role === 'rm') {
     return {
       inbox: () => <RM.RMInbox me={me} nav={nav} />,
+      map: () => <ST.MapScreen nav={nav} />,
       fairs: () => <RM.RMFairs />,
       schools: () => <RM.RMSchools />,
       people: () => <RM.RMPeople />,
