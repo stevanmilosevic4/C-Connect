@@ -1,0 +1,83 @@
+/* ============================================================
+   Constructor University — Color tokens
+   Source: Brand Identity Style Guide (2024) p.11–12,
+           Video Styleguide p.18
+   Digital system favors the WCAG-tuned "web" values; print
+   Pantone/CMYK equivalents are noted in readme.md.
+   ============================================================ */
+
+:root {
+  /* --- Brand / primary --------------------------------------- */
+  --cu-navy:            #00204D; /* Navy Blue — the anchor color  */
+  --cu-mobility-blue:   #008CE3; /* Mobility Blue — bright accent */
+  --cu-mobility-blue-web:#00B2FF; /* lighter web variant          */
+  --cu-diversity-red:   #E04130; /* Diversity Red — logo red      */
+
+  /* --- Accent ------------------------------------------------- */
+  --cu-confident-blue:  #004381; /* interactive / button blue     */
+  --cu-shiny-yellow:    #FFC622; /* Shiny Yellow                  */
+  --cu-healthy-green:   #00A987; /* Healthy Green                 */
+  --cu-healthy-green-web:#00D19E;/* lighter web variant           */
+  --cu-web-red:         #EB1700; /* WCAG web red (alerts/links)   */
+
+  /* --- Neutrals (navy-tinted cool greys) --------------------- */
+  --cu-white:           #FFFFFF; /* Pure White                    */
+  --neutral-0:          #FFFFFF;
+  --neutral-50:         #F9F9F9; /* Light Grey                    */
+  --neutral-100:        #F1F3F6;
+  --neutral-200:        #E2E6EC;
+  --neutral-300:        #CCD3DD;
+  --neutral-400:        #9AA5B4;
+  --neutral-500:        #6B7686;
+  --neutral-600:        #49535F;
+  --neutral-700:        #2E3742;
+  --neutral-800:        #1A2530;
+  --neutral-900:        #0E1822;
+  --neutral-950:        #141414; /* Web Black                     */
+  --cu-graphene-black:  #0A0A0A; /* Graphene Black                */
+
+  /* --- Semantic: text ---------------------------------------- */
+  --text-strong:        var(--cu-navy);
+  --text-body:          var(--neutral-800);
+  --text-muted:         var(--neutral-500);
+  --text-subtle:        var(--neutral-400);
+  --text-on-dark:       var(--cu-white);
+  --text-on-dark-muted: #A9B6C8;
+  --text-link:          var(--cu-confident-blue);
+  --text-link-hover:    var(--cu-navy);
+
+  /* --- Semantic: surfaces ------------------------------------ */
+  --surface-page:       var(--cu-white);
+  --surface-subtle:     var(--neutral-50);
+  --surface-card:       var(--cu-white);
+  --surface-sunken:     var(--neutral-100);
+  --surface-inverse:    var(--cu-navy);
+  --surface-inverse-2:  var(--neutral-900);
+
+  /* --- Semantic: borders ------------------------------------- */
+  --border-subtle:      var(--neutral-200);
+  --border-default:     var(--neutral-300);
+  --border-strong:      var(--neutral-400);
+  --border-focus:       var(--cu-mobility-blue);
+  --border-on-dark:     rgba(255, 255, 255, 0.18);
+
+  /* --- Semantic: interactive (Confident Blue per WCAG note) -- */
+  --action-primary:        var(--cu-confident-blue);
+  --action-primary-hover:  #00366A;
+  --action-primary-active: #002A54;
+  --action-accent:         var(--cu-mobility-blue);
+  --action-accent-hover:   #0079C4;
+
+  /* --- Semantic: status -------------------------------------- */
+  --status-success:     var(--cu-healthy-green);
+  --status-success-bg:  #E1F6F0;
+  --status-warning:     var(--cu-shiny-yellow);
+  --status-warning-bg:  #FFF6DD;
+  --status-error:       var(--cu-web-red);
+  --status-error-bg:    #FDE7E3;
+  --status-info:        var(--cu-mobility-blue);
+  --status-info-bg:     #E1F1FC;
+
+  /* --- Focus ring -------------------------------------------- */
+  --focus-ring:         0 0 0 3px rgba(0, 140, 227, 0.45);
+}

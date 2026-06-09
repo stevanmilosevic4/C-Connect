@@ -1,0 +1,62 @@
+/* ============================================================
+   C>Connect — global stylesheet entry point.
+   Imports the Constructor University design-system tokens +
+   component styles, then the app-level review shell styles.
+   ============================================================ */
+
+@import './fonts.css';
+@import './colors.css';
+@import './typography.css';
+@import './spacing.css';
+@import './components.css';
+
+*{ box-sizing: border-box; }
+html, body{ margin: 0; height: 100%; }
+#root-app{ width: 100%; }
+
+body{
+  font-family: var(--font-sans);
+  color: var(--text-body);
+  background: radial-gradient(120% 120% at 50% 0%, #f4f7fa 0%, #e8edf3 60%, #dfe6ee 100%);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* ---- review side rail ------------------------------------ */
+.rail{ width: 284px; display: flex; flex-direction: column; gap: 20px; }
+.rail .brand{ font-family: var(--font-mono); font-weight: 700; font-size: 24px;
+      letter-spacing: -0.02em; color: var(--cu-navy); }
+.rail .brand i{ color: var(--cu-mobility-blue); font-style: normal; }
+.rail h1{ font-weight: 900; font-size: 23px; line-height: 1.15; letter-spacing: -0.02em;
+      color: var(--cu-navy); margin: 0; }
+.rail p{ font-size: 13.5px; line-height: 1.55; color: var(--text-muted); margin: 0; max-width: 34ch; }
+.group-label{ font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-subtle); margin-bottom: 9px; }
+.roles{ display: flex; flex-direction: column; gap: 8px; }
+.role-btn{ display: flex; align-items: center; gap: 11px; text-align: left; cursor: pointer;
+      background: #fff; border: 1.5px solid var(--border-subtle); border-radius: 13px;
+      padding: 11px 13px; transition: all .15s var(--ease-standard); }
+.role-btn:hover{ border-color: var(--border-strong); }
+.role-btn.on{ border-color: var(--cu-navy); box-shadow: inset 0 0 0 1px var(--cu-navy); background: #fff; }
+.role-btn .ic{ width: 38px; height: 38px; border-radius: 10px; flex: none; display: flex;
+      align-items: center; justify-content: center; background: var(--cu-navy); color: #fff; }
+.role-btn.on .ic{ background: var(--cu-mobility-blue); }
+.role-btn .tx b{ display: block; font-size: 14px; font-weight: 700; color: var(--cu-navy); }
+.role-btn .tx span{ display: block; font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+.rail .reset{ font-size: 13px; color: var(--cu-mobility-blue); background: none; border: none;
+      cursor: pointer; font-weight: 600; font-family: var(--font-sans); align-self: flex-start; padding: 0;
+      display: inline-flex; align-items: center; gap: 5px; }
+.rail .note{ font-size: 11.5px; color: var(--text-subtle); line-height: 1.5; padding-top: 4px;
+      border-top: 1px solid var(--border-subtle); }
+
+@media(max-width: 840px){ .rail{ width: auto; max-width: 380px; order: 2; } #stage{ gap: 28px; } }
+
+.device-host{ flex: none; }

@@ -1,0 +1,65 @@
+/* ============================================================
+   Constructor University — Fonts
+   Brand typeface: ALS Hauss (Art Lebedev Studio, commercial).
+   Self-hosted from /assets/fonts/ (woff2 + woff).
+   Weights: Light 300 · Regular 400 · Medium 500 · Bold 700 · Black 900.
+   ============================================================ */
+
+@font-face {
+  font-family: 'ALS Hauss';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('/assets/fonts/ALSHauss-Light.woff2') format('woff2'),
+       url('/assets/fonts/ALSHauss-Light.woff')  format('woff');
+}
+@font-face {
+  font-family: 'ALS Hauss';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/assets/fonts/ALSHauss-Regular.woff2') format('woff2'),
+       url('/assets/fonts/ALSHauss-Regular.woff')  format('woff');
+}
+@font-face {
+  font-family: 'ALS Hauss';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('/assets/fonts/ALSHauss-Medium.woff2') format('woff2'),
+       url('/assets/fonts/ALSHauss-Medium.woff')  format('woff');
+}
+@font-face {
+  font-family: 'ALS Hauss';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/assets/fonts/ALSHauss-Bold.woff2') format('woff2'),
+       url('/assets/fonts/ALSHauss-Bold.woff')  format('woff');
+}
+@font-face {
+  font-family: 'ALS Hauss';
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('/assets/fonts/ALSHauss-Black.woff2') format('woff2'),
+       url('/assets/fonts/ALSHauss-Black.woff')  format('woff');
+}
+
+/* --- Italics (Bold + Black; used sparingly) ----------------- */
+@font-face {
+  font-family: 'ALS Hauss';
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+  src: url('/assets/fonts/ALSHauss-BoldItalic.woff2') format('woff2'),
+       url('/assets/fonts/ALSHauss-BoldItalic.woff')  format('woff');
+}
+@font-face {
+  font-family: 'ALS Hauss';
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+  src: url('/assets/fonts/ALSHauss-BlackItalic.woff2') format('woff2'),
+       url('/assets/fonts/ALSHauss-BlackItalic.woff')  format('woff');
+}
