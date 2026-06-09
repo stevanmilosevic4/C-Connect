@@ -148,6 +148,8 @@ export const brochures = [
     file: '/brochures/cu-pre-bachelor-semester-onepager-a4.pdf' },
   { id: 'anniversary', name: '25th Anniversary — One Pager', desc: 'A4 · print-ready · 8 MB',
     file: '/brochures/cu-25th-anniversary-onepager-a4.pdf' },
+  { id: 'rollup', name: 'Roll-up Banner (event stand)', desc: '87 × 227 cm · with bleed · 64 MB',
+    file: '/brochures/cu-rollup-banner-87x227cm.pdf' },
 ];
 
 // --- Notifications (role-aware). RM items can be actioned. --------------------
