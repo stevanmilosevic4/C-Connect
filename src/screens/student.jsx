@@ -6,7 +6,7 @@ import {
   AppBar, RoundBtn, Screen, SectionLabel, StatTile, ListRow, statusPill,
   MapView, TierLadder, TerminalProgress, HistoryLog,
 } from '../shell.jsx';
-import { tiers, requests, fairs, giftHistory, schools, school } from '../data.js';
+import { tiers, requests, fairs, giftHistory, schools, school, rewardFor } from '../data.js';
 
 const tierName = (k) => tiers.find((t) => t.key === k)?.name || k;
 
@@ -19,7 +19,7 @@ export function Dashboard({ me, nav }) {
         left={<Avatar name={me.name} size={40} />}
         title={`Hi, ${me.name.split(' ')[0]}`}
         subtitle={me.role}
-        right={<RoundBtn name="bell" badge />}
+        right={<RoundBtn name="bell" badge onClick={() => nav.go('notifications')} />}
       />
       <Screen bg="var(--surface-subtle)">
         <Card variant="accent" elevation="raised" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -51,6 +51,20 @@ export function Dashboard({ me, nav }) {
           onClick={() => nav.setTab('map')}>Find schools on map</Button>
         <Button variant="secondary" size="md" block iconLeft={<Icon name="users" size={18} />}
           onClick={() => nav.go('refer-student')}>Refer a student</Button>
+
+        <SectionLabel>Earn &amp; resources</SectionLabel>
+        <ListRow icon="camera" iconColor="var(--cu-mobility-blue)" title="Make a video"
+          sub={`Day in the life · €${rewardFor('video')}`}
+          right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
+          onClick={() => nav.go('make-video')} />
+        <ListRow icon="mail" iconColor="var(--cu-navy)" title="Print brochures"
+          sub="Hand out at schools · pay &amp; claim back"
+          right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
+          onClick={() => nav.go('brochures')} />
+        <ListRow icon="edit" iconColor="var(--cu-healthy-green)" title="Sign-up sheet"
+          sub="Collect interested students’ details"
+          right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />}
+          onClick={() => nav.go('signup-sheet')} />
 
         <SectionLabel action={<button onClick={() => nav.go('requests')} style={linkBtn}>See all</button>}>
           Your requests
@@ -335,7 +349,7 @@ export function ReqSent({ nav }) {
 }
 
 // ============ LOG VISIT (photos) ============
-export function LogVisit({ nav, params }) {
+export function LogVisit({ nav, params, role }) {
   const s = school(params.id);
   const [photos, setPhotos] = React.useState([1, 2]);
   const [seq, setSeq] = React.useState(3);
@@ -375,9 +389,12 @@ export function LogVisit({ nav, params }) {
             <Icon name="gift" size={22} color="#fff" /></span>
           <div>
             <div style={{ fontSize: 12.5, color: '#066b54' }}>Quest reward — on approval</div>
-            <div style={{ fontWeight: 900, fontSize: 22, color: '#066b54', lineHeight: 1.1 }}>€25 gift card</div>
+            <div style={{ fontWeight: 900, fontSize: 22, color: '#066b54', lineHeight: 1.1 }}>€{rewardFor('visit', role)} gift card</div>
           </div>
         </Card>
+        <div style={{ fontSize: 12, color: 'var(--text-subtle)', textAlign: 'center' }}>
+          Visits over 5 hours may be adjusted by your Regional Manager.
+        </div>
         <Button variant="primary" size="lg" block disabled={!photos.length}
           onClick={() => nav.reset('home')}>Submit quest</Button>
       </Screen>
@@ -386,12 +403,25 @@ export function LogVisit({ nav, params }) {
 }
 
 // ============ FAIRS ============
-export function Fairs() {
+export function Fairs({ role }) {
   const [going, setGoing] = React.useState(fairs.filter((f) => f.mine).map((f) => f.id));
+  const reward = rewardFor('fair', role);
   return (
     <>
       <AppBar title="Fairs &amp; expos" subtitle="Posted by your Regional Manager" right={<RoundBtn name="search" />} />
       <Screen bg="var(--surface-subtle)">
+        <Card variant="success" style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+          <span style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--cu-healthy-green)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+            <Icon name="gift" size={20} color="#fff" /></span>
+          <div>
+            <div style={{ fontSize: 12.5, color: '#066b54' }}>Attend a fair to earn</div>
+            <div style={{ fontWeight: 900, fontSize: 20, color: '#066b54', lineHeight: 1.1 }}>€{reward}</div>
+          </div>
+          <div style={{ fontSize: 11.5, color: '#066b54', marginLeft: 'auto', maxWidth: 132, lineHeight: 1.4, textAlign: 'right' }}>
+            Events over 5 hours may be adjusted by your Regional Manager.
+          </div>
+        </Card>
         {fairs.map((f) => {
           const on = going.includes(f.id);
           return (
@@ -484,10 +514,10 @@ export function Status({ me }) {
 }
 
 // ============ PROFILE ============
-export function Profile({ me, nav }) {
+export function Profile({ me, nav, onSignOut }) {
   return (
     <>
-      <AppBar title="Profile" />
+      <AppBar title="Profile" right={<RoundBtn name="bell" badge onClick={() => nav.go('notifications')} />} />
       <Screen bg="var(--surface-subtle)">
         <Card style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
           <Avatar name={me.name} size={56} />
@@ -499,8 +529,8 @@ export function Profile({ me, nav }) {
         </Card>
         <SectionLabel>Account</SectionLabel>
         <ListRow icon="award" iconColor="var(--cu-mobility-blue)" title="Your status" sub={tierName(me.level) + ' tier'} right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.setTab('status')} />
-        <ListRow icon="settings" iconColor="var(--neutral-600)" title="Settings & notifications" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} />
-        <ListRow icon="logout" iconColor="var(--cu-diversity-red)" title="Sign out" />
+        <ListRow icon="settings" iconColor="var(--neutral-600)" title="Settings & notifications" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.go('settings')} />
+        <ListRow icon="logout" iconColor="var(--cu-diversity-red)" title="Sign out" onClick={onSignOut} />
       </Screen>
     </>
   );

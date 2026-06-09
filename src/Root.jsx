@@ -19,7 +19,7 @@ export default function Root() {
   let content;
   if (stage === 'login') content = <Login onLogin={() => setStage('role')} />;
   else if (stage === 'role') content = <RoleSelect onPick={(r) => { setRole(r); setStage('app'); }} />;
-  else content = <AppInner key={role} role={role} />;
+  else content = <AppInner key={role} role={role} onSignOut={() => setStage('login')} />;
 
   return (
     <div id="stage-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 46, flexWrap: 'wrap' }}>

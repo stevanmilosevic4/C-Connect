@@ -6,6 +6,8 @@ import { TabBar, CMark } from './shell.jsx';
 import { me as ME } from './data.js';
 import * as ST from './screens/student.jsx';
 import * as PA from './screens/other.jsx';
+import * as CO from './screens/common.jsx';
+import * as RES from './screens/resources.jsx';
 const RM = PA; // RM screens live alongside parent screens in other.jsx
 
 // tab config per role
@@ -47,7 +49,7 @@ function useNav(role) {
   return { tab, stack, nav };
 }
 
-function renderScreen(role, tab, view, params, nav, me) {
+function renderScreen(role, tab, view, params, nav, me, onSignOut) {
   // sub-views (pushed)
   if (view) {
     const v = {
@@ -58,13 +60,19 @@ function renderScreen(role, tab, view, params, nav, me) {
       'req-dates': () => <ST.ReqDates nav={nav} params={params} />,
       'req-email': () => <ST.ReqEmail nav={nav} params={params} />,
       'req-sent': () => <ST.ReqSent nav={nav} params={params} />,
-      'log-visit': () => <ST.LogVisit nav={nav} params={params} />,
+      'log-visit': () => <ST.LogVisit nav={nav} params={params} role={role} />,
       'refer-student': () => <ST.ReferStudent nav={nav} />,
+      'make-video': () => <RES.MakeVideo nav={nav} role={role} />,
+      'brochures': () => <RES.Brochures nav={nav} />,
+      'signup-sheet': () => <RES.SignUpSheet nav={nav} />,
       // parent
       'add-refer': () => <PA.AddRefer nav={nav} params={params} />,
       // rm
       'review': () => <RM.RMReview nav={nav} params={params} />,
       'add-school': () => <RM.AddSchool nav={nav} />,
+      // shared
+      'settings': () => <CO.Settings me={me} role={role} nav={nav} onSignOut={onSignOut} />,
+      'notifications': () => <CO.Notifications role={role} nav={nav} />,
     }[view];
     if (v) return v();
   }
@@ -74,7 +82,7 @@ function renderScreen(role, tab, view, params, nav, me) {
       home: () => <PA.ParentDashboard me={me} nav={nav} />,
       map: () => <ST.MapScreen nav={nav} />,
       contacts: () => <PA.ParentContacts nav={nav} />,
-      profile: () => <PA.ParentProfile me={me} />,
+      profile: () => <PA.ParentProfile me={me} nav={nav} onSignOut={onSignOut} />,
     }[tab]();
   }
   if (role === 'rm') {
@@ -90,9 +98,9 @@ function renderScreen(role, tab, view, params, nav, me) {
   return {
     home: () => <ST.Dashboard me={me} nav={nav} />,
     map: () => <ST.MapScreen nav={nav} />,
-    fairs: () => <ST.Fairs />,
+    fairs: () => <ST.Fairs role={role} />,
     status: () => <ST.Status me={me} />,
-    profile: () => <ST.Profile me={me} nav={nav} />,
+    profile: () => <ST.Profile me={me} nav={nav} onSignOut={onSignOut} />,
   }[tab]();
 }
 
@@ -160,14 +168,14 @@ export function Login({ onLogin }) {
 }
 
 // ---- App (self-contained: login → role → app) ------------
-export function AppInner({ role }) {
+export function AppInner({ role, onSignOut }) {
   const me = ME[role === 'alumni' ? 'alumni' : role];
   const { tab, stack, nav } = useNav(role);
   const top = stack[stack.length - 1];
   const hideTabBar = top && ['req-sent'].includes(top.view);
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-      {renderScreen(role, tab, top?.view, top?.params || {}, nav, me)}
+      {renderScreen(role, tab, top?.view, top?.params || {}, nav, me, onSignOut)}
       {!hideTabBar && <TabBar tabs={TABS[role]} active={tab} onChange={nav.setTab} />}
     </div>
   );

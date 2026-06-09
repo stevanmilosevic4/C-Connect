@@ -116,6 +116,62 @@ export const giftHistory = [
   { school: 'Goethe Gymnasium', amount: 25, date: '06 Dec' },
 ];
 
+// --- Reward amounts (€). Alumni earn more per activity; long events (5h+)
+// can be adjusted up by the Regional Manager. ---------------------------------
+export const REWARDS = {
+  visit: { student: 25, alumni: 50 },
+  fair: { student: 50, alumni: 100 },
+  video: 25,      // "Day in the life" video
+  referral: 200,  // when a referred student enrols
+};
+
+export function rewardFor(kind, role) {
+  const r = REWARDS[kind];
+  if (typeof r === 'number') return r;
+  return r[role === 'alumni' ? 'alumni' : 'student'];
+}
+
+// --- Printable brochures (attached PDFs in /public/brochures). ----------------
+export const brochures = [
+  { id: 'overview', name: 'Programmes Overview', desc: 'A4 · double-sided · full colour',
+    file: '/brochures/cu-programmes-overview.pdf' },
+  { id: 'campus', name: 'Campus & Student Life', desc: 'A5 · fold · full colour',
+    file: '/brochures/cu-campus-life.pdf' },
+  { id: 'admissions', name: 'Admissions & Scholarships', desc: 'A4 · single page',
+    file: '/brochures/cu-admissions-scholarships.pdf' },
+];
+
+// --- Notifications (role-aware). RM items can be actioned. --------------------
+export const notifications = {
+  student: [
+    { id: 'n1', icon: 'checkCircle', color: 'var(--cu-healthy-green)', title: 'Visit approved',
+      sub: 'Lincoln High School · email sent, you’re CC’d', when: '2h ago' },
+    { id: 'n2', icon: 'gift', color: 'var(--cu-healthy-green)', title: 'Reward credited',
+      sub: '€25 gift card · Leibniz Gymnasium quest', when: '1d ago' },
+    { id: 'n3', icon: 'camera', color: 'var(--cu-mobility-blue)', title: 'Video in review',
+      sub: 'Day in the life — your Regional Manager will review it', when: '2d ago' },
+    { id: 'n4', icon: 'star', color: 'var(--cu-mobility-blue)', title: 'New fair near you',
+      sub: 'Berlin Education Expo · 04–05 Apr', when: '3d ago' },
+  ],
+  parent: [
+    { id: 'p1', icon: 'checkCircle', color: 'var(--cu-healthy-green)', title: 'School added',
+      sub: 'Humboldt Schule — recruitment team notified', when: '1d ago' },
+    { id: 'p2', icon: 'handshake', color: 'var(--cu-mobility-blue)', title: 'Thank you',
+      sub: 'Your referral reached our team', when: '4d ago' },
+  ],
+  rm: [
+    { id: 'rn1', icon: 'inbox', color: 'var(--cu-mobility-blue)', title: 'New visit request',
+      sub: 'Maria Sánchez · Lincoln High School', when: '2h ago', kind: 'info' },
+    { id: 'rn2', icon: 'camera', color: 'var(--cu-mobility-blue)', title: 'Video submitted',
+      sub: 'Maria Sánchez · Day in the life · approve €25 reward', when: '5h ago',
+      kind: 'approval', amount: 25, what: 'video reward' },
+    { id: 'rn3', icon: 'dollar', color: 'var(--cu-shiny-yellow)', title: 'Reimbursement request',
+      sub: 'Jonas Krause · brochure printing · receipt attached', when: '1d ago',
+      kind: 'approval', amount: 18, what: 'reimbursement' },
+  ],
+};
+notifications.alumni = notifications.student;
+
 export const me = {
   student: { name: 'Maria Sánchez', role: 'Student Ambassador', field: 'Robotics & Intelligent Systems',
     year: '2026', level: 'builder', visits: 7, fairs: 2, earned: 175, toNext: 3, progress: 7, progressMax: 10 },

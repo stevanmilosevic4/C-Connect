@@ -12,7 +12,7 @@ export function ParentDashboard({ me, nav }) {
   return (
     <>
       <AppBar left={<Avatar name={me.name} size={40} />} title={`Hi, ${me.name.split(' ')[0]}`}
-        subtitle={me.role} right={<RoundBtn name="bell" />} />
+        subtitle={me.role} right={<RoundBtn name="bell" badge onClick={() => nav.go('notifications')} />} />
       <Screen bg="var(--surface-subtle)">
         <Card variant="accent" elevation="raised" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -105,10 +105,10 @@ export function ParentContacts() {
   );
 }
 
-export function ParentProfile({ me }) {
+export function ParentProfile({ me, nav, onSignOut }) {
   return (
     <>
-      <AppBar title="Profile" />
+      <AppBar title="Profile" right={<RoundBtn name="bell" badge onClick={() => nav.go('notifications')} />} />
       <Screen bg="var(--surface-subtle)">
         <Card style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
           <Avatar name={me.name} size={56} />
@@ -118,8 +118,8 @@ export function ParentProfile({ me }) {
             <div style={{ fontSize: 12.5, color: 'var(--text-subtle)', marginTop: 2 }}>Parent of {me.child}</div>
           </div>
         </Card>
-        <ListRow icon="settings" iconColor="var(--neutral-600)" title="Settings & notifications" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} />
-        <ListRow icon="logout" iconColor="var(--cu-diversity-red)" title="Sign out" />
+        <ListRow icon="settings" iconColor="var(--neutral-600)" title="Settings & notifications" right={<Icon name="chevronRight" size={18} color="var(--neutral-400)" />} onClick={() => nav.go('settings')} />
+        <ListRow icon="logout" iconColor="var(--cu-diversity-red)" title="Sign out" onClick={onSignOut} />
       </Screen>
     </>
   );
@@ -132,7 +132,8 @@ export function RMInbox({ me, nav }) {
   return (
     <>
       <AppBar title="Inbox"
-        subtitle={`${country === 'All' ? 'All countries' : country} · ${list.length} awaiting you`} />
+        subtitle={`${country === 'All' ? 'All countries' : country} · ${list.length} awaiting you`}
+        right={<RoundBtn name="bell" badge onClick={() => nav.go('notifications')} />} />
       <Screen bg="var(--surface-subtle)">
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
           <Chip active={country === 'All'} onClick={() => setCountry('All')}>All countries</Chip>
