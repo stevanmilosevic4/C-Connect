@@ -220,10 +220,12 @@ export function SignUpSheet({ nav }) {
             ['Intended major', 'Programme they’re interested in'],
             ['Intended start of term', 'e.g. Fall 2026'],
           ].map(([k, v], i) => (
-            <div key={k} style={{ display: 'flex', gap: 11, padding: '10px 13px',
+            <div key={k} style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '11px 14px',
               borderTop: i ? '1px solid var(--border-subtle)' : 'none' }}>
-              <span style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--cu-navy)', width: 130, flex: 'none' }}>{k}</span>
-              <span style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.4 }}>{v}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 700, fontSize: 14, color: 'var(--cu-navy)' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--cu-mobility-blue)' }}>{i + 1}</span>{k}
+              </span>
+              <span style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.45 }}>{v}</span>
             </div>
           ))}
         </Card>
