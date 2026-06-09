@@ -42,15 +42,11 @@ export function Dashboard({ me, nav }) {
         </Card>
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <StatTile value={me.visits} label="Quests" />
-          <StatTile value={me.fairs} label="Fairs" />
-          <StatTile value={'€' + me.earned} label="Total" accent="var(--cu-healthy-green)" />
+          <Button variant="accent" size="md" block iconLeft={<Icon name="map" size={18} />}
+            onClick={() => nav.setTab('map')}>Find schools</Button>
+          <Button variant="secondary" size="md" block iconLeft={<Icon name="users" size={18} />}
+            onClick={() => nav.go('refer-student')}>Refer student</Button>
         </div>
-
-        <Button variant="accent" size="lg" block iconLeft={<Icon name="map" size={20} />}
-          onClick={() => nav.setTab('map')}>Find schools on map</Button>
-        <Button variant="secondary" size="md" block iconLeft={<Icon name="users" size={18} />}
-          onClick={() => nav.go('refer-student')}>Refer a student</Button>
 
         <SectionLabel>Earn &amp; resources</SectionLabel>
         <ListRow icon="camera" iconColor="var(--cu-mobility-blue)" title="Make a video"
