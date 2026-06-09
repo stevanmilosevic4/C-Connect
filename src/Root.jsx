@@ -6,10 +6,10 @@ import { AppInner, Login, RoleSelect } from './app.jsx';
 import { Icon } from './icons.jsx';
 
 const ROLE_META = [
-  { key: 'student', label: 'Student', sub: 'Quests · fairs · rewards', icon: 'user' },
-  { key: 'alumni', label: 'Alumni', sub: 'Same as student', icon: 'award' },
-  { key: 'parent', label: 'Parent', sub: 'Contribute · add · refer', icon: 'users' },
-  { key: 'rm', label: 'Regional Manager', sub: 'Approvals · admin', icon: 'target' },
+  { key: 'student', label: 'Student', icon: 'user' },
+  { key: 'alumni', label: 'Alumni', icon: 'award' },
+  { key: 'parent', label: 'Parent', icon: 'users' },
+  { key: 'rm', label: 'Recruitment', icon: 'target' },
 ];
 
 export default function Root() {
@@ -36,7 +36,7 @@ export default function Root() {
               <button key={r.key} className={'role-btn' + (stage === 'app' && role === r.key ? ' on' : '')}
                 onClick={() => { setRole(r.key); setStage('app'); }}>
                 <span className="ic"><Icon name={r.icon} size={20} color="#fff" /></span>
-                <span className="tx"><b>{r.label}</b><span>{r.sub}</span></span>
+                <span className="tx"><b>{r.label}</b></span>
               </button>
             ))}
           </div>
