@@ -24,11 +24,11 @@ function GoogleSchools({ schools, selected, onToggle, height }) {
   React.useEffect(() => { if (mapRef.current) fit(mapRef.current); }, [fit]);
 
   if (!isLoaded) {
-    return <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    return <div style={{ height, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
       color: 'var(--text-muted)', fontSize: 13, background: 'var(--neutral-100)', borderRadius: 'var(--radius-md)' }}>Loading map…</div>;
   }
   return (
-    <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+    <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', flexShrink: 0 }}>
       <GoogleMap mapContainerStyle={{ width: '100%', height }} onLoad={onLoad}
         center={{ lat: 51, lng: 10 }} zoom={5}
         options={{ disableDefaultUI: true, zoomControl: true, clickableIcons: false, gestureHandling: 'greedy' }}>
@@ -51,7 +51,7 @@ function GoogleSchools({ schools, selected, onToggle, height }) {
 
 function StylisedSchools({ schools, selected, onToggle, height }) {
   return (
-    <div style={{ position: 'relative', width: '100%', height, overflow: 'hidden', borderRadius: 'var(--radius-md)',
+    <div style={{ position: 'relative', width: '100%', height, flexShrink: 0, overflow: 'hidden', borderRadius: 'var(--radius-md)',
       background: 'linear-gradient(180deg,#eef3f7,#e4ebf2)', border: '1px solid var(--border-subtle)' }}>
       <div style={{ position: 'absolute', inset: 0, opacity: 0.5,
         backgroundImage: 'linear-gradient(var(--neutral-200) 1px,transparent 1px),linear-gradient(90deg,var(--neutral-200) 1px,transparent 1px)',
