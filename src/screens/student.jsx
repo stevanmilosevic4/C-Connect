@@ -206,7 +206,7 @@ export function MapScreen({ nav, role = 'student', countries }) {
   const myCountries = restricted ? (countries && countries.length ? countries : ['Germany']) : allCountries;
   const lockedCountries = restricted ? allCountries.filter((c) => !myCountries.includes(c)) : [];
 
-  const [country, setCountry] = React.useState('all');
+  const [country, setCountry] = React.useState(myCountries[0] || 'all'); // default to the main (first-chosen) country
   const [city, setCity] = React.useState('all');
   const [query, setQuery] = React.useState('');
   const [selected, setSelected] = React.useState([]);

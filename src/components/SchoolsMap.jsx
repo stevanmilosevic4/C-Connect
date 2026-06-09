@@ -49,29 +49,79 @@ function GoogleSchools({ schools, selected, onToggle, height }) {
   );
 }
 
+// Project schools onto the box by real lat/lng, aspect-preserved and centred,
+// so dots land approximately where each city sits within the country.
+function project(schools, W, H, pad = 30) {
+  const n = schools.length;
+  if (!n || !W || !H) return schools.map(() => null);
+  const meanLat = schools.reduce((a, s) => a + s.lat, 0) / n;
+  const k = Math.cos((meanLat * Math.PI) / 180) || 1; // longitude compression at this latitude
+  const gx = (s) => s.lng * k;
+  const gy = (s) => -s.lat;                            // north is up
+  const xs = schools.map(gx), ys = schools.map(gy);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const gw = maxX - minX, gh = maxY - minY;
+  const availW = W - 2 * pad, availH = H - 2 * pad;
+  const degX = gw < 1e-6, degY = gh < 1e-6;
+  let scale = Math.min(degX ? Infinity : availW / gw, degY ? Infinity : availH / gh);
+  if (!isFinite(scale)) scale = Math.min(availW, availH);
+  const offX = pad + (availW - (degX ? 0 : gw * scale)) / 2;
+  const offY = pad + (availH - (degY ? 0 : gh * scale)) / 2;
+  return schools.map((s) => ({
+    x: degX ? W / 2 : offX + (gx(s) - minX) * scale,
+    y: degY ? H / 2 : offY + (gy(s) - minY) * scale,
+  }));
+}
+
 function StylisedSchools({ schools, selected, onToggle, height }) {
+  const ref = React.useRef(null);
+  const [size, setSize] = React.useState({ w: 0, h: height });
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const pts = project(schools, size.w, size.h);
+  const onlyCountry = schools.length && schools.every((s) => s.country === schools[0].country) ? schools[0].country : null;
+
   return (
-    <div style={{ position: 'relative', width: '100%', height, flexShrink: 0, overflow: 'hidden', borderRadius: 'var(--radius-md)',
-      background: 'linear-gradient(180deg,#eef3f7,#e4ebf2)', border: '1px solid var(--border-subtle)' }}>
+    <div ref={ref} style={{ position: 'relative', width: '100%', height, flexShrink: 0, overflow: 'hidden',
+      borderRadius: 'var(--radius-md)', background: 'linear-gradient(180deg,#eef3f7,#e4ebf2)', border: '1px solid var(--border-subtle)' }}>
       <div style={{ position: 'absolute', inset: 0, opacity: 0.5,
         backgroundImage: 'linear-gradient(var(--neutral-200) 1px,transparent 1px),linear-gradient(90deg,var(--neutral-200) 1px,transparent 1px)',
         backgroundSize: '30px 30px' }} />
-      {schools.map((s) => {
+      {onlyCountry && (
+        <div style={{ position: 'absolute', top: 8, left: 10, fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
+          textTransform: 'uppercase', color: 'var(--text-subtle)', background: 'rgba(255,255,255,0.7)', borderRadius: 6, padding: '2px 7px' }}>
+          {onlyCountry} · approx. locations
+        </div>
+      )}
+      {schools.map((s, i) => {
+        const p = pts[i];
+        if (!p) return null;
         const sel = selected.includes(s.id);
         return (
           <button key={s.id} onClick={() => onToggle(s.id)} title={s.name} style={{
-            position: 'absolute', left: s.x + '%', top: s.y + '%', transform: 'translate(-50%,-100%)',
-            background: 'none', border: 'none', cursor: 'pointer', padding: 4, zIndex: sel ? 5 : 1 }}>
+            position: 'absolute', left: p.x, top: p.y, transform: 'translate(-50%,-50%)',
+            background: 'none', border: 'none', cursor: 'pointer', padding: 0, zIndex: sel ? 5 : 1,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: sel ? 32 : 24, height: sel ? 32 : 24, borderRadius: '50% 50% 50% 2px',
+              width: sel ? 28 : 21, height: sel ? 28 : 21, borderRadius: '50% 50% 50% 2px',
               transform: 'rotate(45deg)', background: sel ? 'var(--cu-navy)' : pinColor(s.status),
               border: sel ? '2px solid var(--cu-shiny-yellow)' : '2px solid #fff', boxShadow: 'var(--shadow-md)',
-              transition: 'all .15s' }}>
+              transition: 'all .12s' }}>
               <span style={{ transform: 'rotate(-45deg)', display: 'flex' }}>
-                {sel ? <Icon name="check" size={14} color="#fff" stroke={3} />
-                     : <Icon name="school" size={12} color="#fff" stroke={2.4} />}
+                {sel ? <Icon name="check" size={12} color="#fff" stroke={3} />
+                     : <Icon name="school" size={11} color="#fff" stroke={2.4} />}
               </span>
             </span>
+            <span style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--cu-navy)', background: 'rgba(255,255,255,0.82)',
+              borderRadius: 4, padding: '0 4px', whiteSpace: 'nowrap', lineHeight: 1.5 }}>{s.city}</span>
           </button>
         );
       })}
