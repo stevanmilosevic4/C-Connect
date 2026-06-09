@@ -4,7 +4,8 @@ import React from 'react';
 import { Button, Card } from '../ds/index.jsx';
 import { Icon } from '../icons.jsx';
 import { AppBar, RoundBtn, Screen, SectionLabel } from '../shell.jsx';
-import { brochures, rewardFor } from '../data.js';
+import { brochures, rewardFor, me as ME } from '../data.js';
+import { submitWork } from '../lib/api.js';
 
 const lbl = { fontSize: 13, fontWeight: 600, color: 'var(--text-strong)' };
 
@@ -51,8 +52,21 @@ const bullet = (text) => (
 // ============ MAKE A VIDEO — "Day in the life" ============
 export function MakeVideo({ nav, role }) {
   const [file, setFile] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState(null);
   const [sent, setSent] = React.useState(false);
   const amount = rewardFor('video', role);
+
+  async function submit() {
+    setBusy(true); setErr(null);
+    try {
+      await submitWork({ kind: 'video', file, meta: {
+        amount, role, title: 'Day in the life', ambassadorName: ME[role]?.name } });
+      setSent(true);
+    } catch (e) { setErr(e.message || 'Something went wrong. Please try again.'); }
+    finally { setBusy(false); }
+  }
+
   if (sent) return (
     <Sent nav={nav} title="Video submitted"
       body={`Your “Day in the life” video has been sent to your Regional Manager for review. Once approved, your €${amount} gift card is released.`} />
@@ -88,15 +102,16 @@ export function MakeVideo({ nav, role }) {
           padding: '22px 16px', borderRadius: 'var(--radius-md)', border: '2px dashed var(--border-default)',
           background: '#fff', cursor: 'pointer', color: 'var(--cu-mobility-blue)', textAlign: 'center' }}>
           <Icon name="camera" size={26} />
-          <span style={{ fontSize: 13.5, fontWeight: 700 }}>{file ? file : 'Choose a video file'}</span>
+          <span style={{ fontSize: 13.5, fontWeight: 700 }}>{file ? file.name : 'Choose a video file'}</span>
           <span style={{ fontSize: 11.5, color: 'var(--text-subtle)' }}>Full quality · uploaded securely to the recruitment team</span>
           <input type="file" accept="video/*" style={{ display: 'none' }}
-            onChange={(e) => setFile(e.target.files[0]?.name || 'video selected')} />
+            onChange={(e) => { setFile(e.target.files[0] || null); setErr(null); }} />
         </label>
 
         <div style={{ flex: 1, minHeight: 4 }} />
-        <Button variant="primary" size="lg" block disabled={!file} iconRight={<Icon name="send" size={18} />}
-          onClick={() => setSent(true)}>Submit for review</Button>
+        {err && <div style={{ fontSize: 12.5, color: 'var(--status-error)', textAlign: 'center' }}>{err}</div>}
+        <Button variant="primary" size="lg" block disabled={!file || busy} iconRight={<Icon name="send" size={18} />}
+          onClick={submit}>{busy ? 'Uploading…' : 'Submit for review'}</Button>
         <div style={{ fontSize: 12, color: 'var(--text-subtle)', textAlign: 'center' }}>
           Your Regional Manager is notified and reviews before the reward is released
         </div>
@@ -106,10 +121,23 @@ export function MakeVideo({ nav, role }) {
 }
 
 // ============ BROCHURES + REIMBURSEMENT ============
-export function Brochures({ nav }) {
+export function Brochures({ nav, role }) {
   const [amount, setAmount] = React.useState('');
   const [receipt, setReceipt] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState(null);
   const [sent, setSent] = React.useState(false);
+
+  async function submit() {
+    setBusy(true); setErr(null);
+    try {
+      await submitWork({ kind: 'reimbursement', file: receipt, meta: {
+        amount: parseFloat(amount) || 0, role, note: 'brochure printing', ambassadorName: ME[role]?.name } });
+      setSent(true);
+    } catch (e) { setErr(e.message || 'Something went wrong. Please try again.'); }
+    finally { setBusy(false); }
+  }
+
   if (sent) return (
     <Sent nav={nav} title="Receipt submitted"
       body="Your printing receipt has been sent to your Regional Manager. Once approved, you’ll be reimbursed to your registered account." />
@@ -151,15 +179,16 @@ export function Brochures({ nav }) {
             padding: '16px', borderRadius: 'var(--radius-md)', border: '2px dashed var(--border-default)',
             background: 'var(--surface-subtle)', cursor: 'pointer', color: 'var(--cu-mobility-blue)', textAlign: 'center' }}>
             <Icon name="camera" size={22} />
-            <span style={{ fontSize: 13, fontWeight: 700 }}>{receipt ? receipt : 'Attach photo of receipt'}</span>
+            <span style={{ fontSize: 13, fontWeight: 700 }}>{receipt ? receipt.name : 'Attach photo of receipt'}</span>
             <input type="file" accept="image/*" style={{ display: 'none' }}
-              onChange={(e) => setReceipt(e.target.files[0]?.name || 'receipt attached')} />
+              onChange={(e) => { setReceipt(e.target.files[0] || null); setErr(null); }} />
           </label>
         </Card>
 
         <div style={{ flex: 1, minHeight: 4 }} />
-        <Button variant="primary" size="lg" block disabled={!amount || !receipt}
-          iconRight={<Icon name="send" size={18} />} onClick={() => setSent(true)}>Submit for reimbursement</Button>
+        {err && <div style={{ fontSize: 12.5, color: 'var(--status-error)', textAlign: 'center' }}>{err}</div>}
+        <Button variant="primary" size="lg" block disabled={!amount || !receipt || busy}
+          iconRight={<Icon name="send" size={18} />} onClick={submit}>{busy ? 'Sending…' : 'Submit for reimbursement'}</Button>
         <div style={{ fontSize: 12, color: 'var(--text-subtle)', textAlign: 'center' }}>
           Needs Regional Manager approval before reimbursement
         </div>

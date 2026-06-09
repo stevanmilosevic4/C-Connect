@@ -24,6 +24,36 @@ npm run build    # production build → dist/
 npm run preview  # preview the production build
 ```
 
+## Backend (optional — Supabase)
+
+The app runs fully as a **no-login demo with mock data** out of the box. Connecting a
+Supabase project makes the two ambassador uploads persist for real:
+
+- **"Day in the life" videos** and **brochure receipts** upload to Supabase Storage and
+  create a `submissions` row.
+- The **Regional Manager** Notifications screen loads the real pending submissions and
+  **approve/decline** writes the decision back.
+
+Everything else stays mock for now. If no backend is configured, all of the above falls
+back to today's simulated behaviour — the demo never breaks.
+
+**Setup (one-time):**
+1. Create a free project at [supabase.com](https://supabase.com).
+2. In the Supabase **SQL editor**, paste and run [`supabase/schema.sql`](supabase/schema.sql)
+   (creates the `submissions` table, the private `submissions` storage bucket, and
+   demo-grade RLS policies).
+3. Copy `.env.example` → `.env.local` and fill in `VITE_SUPABASE_URL` and
+   `VITE_SUPABASE_ANON_KEY` (Supabase → Settings → API). The anon key is safe to ship.
+4. For production, set the same two vars in **Vercel → Settings → Environment Variables**
+   and redeploy.
+
+> Security note: there is no auth yet, so the SQL ships **permissive demo policies** that
+> let the public anon key read/write submissions — fine for the shared prototype, to be
+> tightened when real login is added. Client-side, videos are capped at 200 MB.
+
+The backend code is isolated in `src/lib/supabase.js` (client) and `src/lib/api.js` (the
+only module screens import; it degrades gracefully when unconfigured).
+
 ## What's inside
 
 The app reproduces the design's review surface: a side-rail role switcher next to

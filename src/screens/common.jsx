@@ -4,6 +4,7 @@ import { Button, Card, Avatar } from '../ds/index.jsx';
 import { Icon } from '../icons.jsx';
 import { AppBar, RoundBtn, Screen, SectionLabel, ListRow } from '../shell.jsx';
 import { notifications } from '../data.js';
+import { listPendingSubmissions, reviewSubmission } from '../lib/api.js';
 
 const lbl = { fontSize: 13, fontWeight: 600, color: 'var(--text-strong)' };
 
@@ -87,8 +88,37 @@ export function Settings({ me, role, nav, onSignOut }) {
 
 // ============ NOTIFICATIONS ============
 export function Notifications({ role, nav }) {
-  const list = notifications[role] || [];
+  const isRM = role === 'rm';
+  // RM queue is loaded from the backend (pending submissions); other roles are static.
+  const [list, setList] = React.useState(isRM ? null : (notifications[role] || []));
   const [handled, setHandled] = React.useState({});
+
+  React.useEffect(() => {
+    if (!isRM) return;
+    let alive = true;
+    listPendingSubmissions()
+      .then((rows) => { if (alive) setList(rows); })
+      .catch(() => { if (alive) setList(notifications.rm); });
+    return () => { alive = false; };
+  }, [isRM]);
+
+  async function review(n, status) {
+    setHandled((h) => ({ ...h, [n.id]: status })); // optimistic
+    try { await reviewSubmission(n.id, status); }
+    catch { setHandled((h) => ({ ...h, [n.id]: undefined })); } // revert on failure
+  }
+
+  if (list === null) {
+    return (
+      <>
+        <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Notifications" />
+        <Screen bg="var(--surface-subtle)">
+          <Card style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Loading…</Card>
+        </Screen>
+      </>
+    );
+  }
+
   return (
     <>
       <AppBar left={<RoundBtn name="chevronLeft" onClick={nav.back} />} title="Notifications" />
@@ -115,9 +145,9 @@ export function Notifications({ role, nav }) {
                   </div>
                 ) : (
                   <div style={{ display: 'flex', gap: 8, marginTop: 9 }}>
-                    <Button variant="danger-outline" size="sm" onClick={() => setHandled((h) => ({ ...h, [n.id]: 'declined' }))}>Decline</Button>
+                    <Button variant="danger-outline" size="sm" onClick={() => review(n, 'declined')}>Decline</Button>
                     <Button variant="primary" size="sm" iconRight={<Icon name="check" size={15} />}
-                      onClick={() => setHandled((h) => ({ ...h, [n.id]: 'approved' }))}>Approve €{n.amount}</Button>
+                      onClick={() => review(n, 'approved')}>Approve €{n.amount}</Button>
                   </div>
                 )
               )}

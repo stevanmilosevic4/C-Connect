@@ -63,7 +63,7 @@ function renderScreen(role, tab, view, params, nav, me, onSignOut) {
       'log-visit': () => <ST.LogVisit nav={nav} params={params} role={role} />,
       'refer-student': () => <ST.ReferStudent nav={nav} />,
       'make-video': () => <RES.MakeVideo nav={nav} role={role} />,
-      'brochures': () => <RES.Brochures nav={nav} />,
+      'brochures': () => <RES.Brochures nav={nav} role={role} />,
       'signup-sheet': () => <RES.SignUpSheet nav={nav} />,
       // parent
       'add-refer': () => <PA.AddRefer nav={nav} params={params} />,
